@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use crate::fi::fi;
+use std::ops::Neg; // implement
 
 
 impl PartialOrd for fi {
@@ -16,9 +17,9 @@ impl Ord for fi {
             Ordering::Greater => return Ordering::Less,
             Ordering::Equal => (),
         }
-        let v1 = self.pretty();
-        let v2 = other.pretty();
-        let len_diff = v1.len() - v2.len();
+        let v1 = self.spruce_up();    
+        let v2 = other.spruce_up();
+        let len_diff: isize = v1.len() as isize - v2.len() as isize;
 
         let mut b = false; // fix
         if len_diff == 0 {
@@ -28,7 +29,7 @@ impl Ord for fi {
             }
             for i in 1..=len {
                 if v1.value[len - i] != v2.value[len - i] {
-                    b = v1.value[len - i - 1];
+                    b = v1.value[len - i];
                     break;
                 } else if i == len {
                     return Ordering::Equal;
@@ -54,7 +55,7 @@ impl PartialEq for fi {
 
 impl Eq for fi {}
 
-fn heaviside(num: &usize) -> bool {
+fn heaviside(num: &isize) -> bool {
     if *num < 0 {
         false
     } else {

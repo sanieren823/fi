@@ -49,7 +49,7 @@ use crate::fi::fi;
 // }
 
 impl fi {
-    pub fn invert_bits(mut self) -> fi {
+    pub fn invert_bits(mut self) -> Self { // remove mut
         for i in 0..self.value.len() {
             self.value[i] ^= true;
         }
@@ -57,15 +57,15 @@ impl fi {
         self
     }
     
-    pub fn abs(&self) -> fi {
+    pub fn abs(&self) -> Self {
         fi{sign: false, value: self.value.clone()}
     }
 
-    pub fn neg(&self) -> fi {
+    pub fn neg(&self) -> Self {
         fi{sign: true, value: self.value.clone()}
     }
 
-    pub fn invert(&self) -> fi {
+    pub fn invert(&self) -> Self {
         fi{sign: !self.sign.clone(), value: self.value.clone()}
     }
     
@@ -73,4 +73,31 @@ impl fi {
         self.value.len()
     }
 
+    pub fn is_zero(&self) -> bool {
+        self.spruce_up().value == Vec::new()
+    }
+
+    pub fn spruce_up(&self) -> Self {
+        let mut valid = false;
+        let mut output = Vec::new();
+        for el in self.value.iter().rev() {
+            if *el {
+                valid = true;
+                output.push(*el)
+            } else {
+                if valid {
+                    output.push(*el);
+                }
+            }
+        }
+        output.reverse();
+        fi{sign: self.sign, value: output}
+    }
+
+}
+
+impl Clone for fi {
+    fn clone(&self) -> Self {
+        fi{sign: self.sign.clone(), value: self.value.clone()}
+    }
 }
