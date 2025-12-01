@@ -4,95 +4,48 @@ use crate::conversion;
 use crate::fi::Parsing;
 use crate::functions;
 
-// TODO: finish but after adding the basic arithmetic functions
 
-impl Into<fi> for i8 {
-    fn into(self) -> fi {
-        let fixed_int = fi::new();
-        if self < 0 {
-            fixed_int.sign = true;
+macro_rules! impl_from_for_fi {
+    ($type:ty) => {
+        impl From<$type> for fi {
+            fn from(val: $type) -> fi {
+                let mut fixed_int = fi::new();
+                if val < 0 {
+                    fixed_int.sign = true;
+                }
+                let mut num: $type = val.abs_diff(0) as $type;
+                if num < 0 {
+                    
+                }
+                while num != 0 {
+                    let bit: $type = num % 2;
+                    let res = match bit {
+                        0 => false,
+                        1 => true,
+                        _ => panic!("Numbers can only be converted to bool if they are either 0 or 1."),
+                    };
+                    fixed_int.value.push(res); // implement push
+                    num /= 2;
+                    if num != 0 {
+                    }
+
+                }
+                let decimals: fi = fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
+                fixed_int *= decimals;
+                fixed_int
+            }
         }
-        let mut num = self.abs();
-        while num != 1 || num != 2 {
-            fixed_int.value.push(num % 2);
-            num /= 2;
-        }
-        const decimals = fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]}
-        fixed_int.value *= decimals;
-        fixed_int
-    }
-    
-}
-impl Into<fi> for i16 {
-    
-}
-impl Into<fi> for i32 {
-
-}
-impl Into<fi> for i64 {
-    
-}
-impl Into<fi> for i128 {
-    
-}
-impl Into<fi> for u8 {
-    
-}
-impl Into<fi> for u16 {
-    
-}
-impl Into<fi> for u32 {
-
-}
-impl Into<fi> for u64 {
-    
-}
-impl Into<fi> for u128 {
-    
+    };
 }
 
 
-impl From<i8> for fi {
-    fn from(val: i8) -> fi {
-        let fixed_int = fi::new();
-        if val < 0 {
-            fixed_int.sign = true;
-        }
-        let mut num = val.abs();
-        while num != 1 || num != 2 {
-            fixed_int.value.push(num % 2);
-            num /= 2;
-        }
-        const decimals = fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]}
-        fixed_int.value *= decimals;
-        fixed_int
-    }
-}
-impl From<i16> for fi {
-    
-}
-impl From<i32> for fi {
-    
-}
-impl From<i64> for fi {
-    
-}
-impl From<i128> for fi {
-    
-}
-impl From<u8> for fi {
-    
-}
-impl From<u16> for fi {
-    
-}
-impl From<u32> for fi {
-    
-}
-impl From<u64> for fi {
-    
-}
-impl From<u128> for fi {
-    
-}
-
+impl_from_for_fi!(i8);
+impl_from_for_fi!(i16);
+impl_from_for_fi!(i32);
+impl_from_for_fi!(i64);
+impl_from_for_fi!(i128);
+impl_from_for_fi!(u8);
+impl_from_for_fi!(u16);
+impl_from_for_fi!(u32);
+impl_from_for_fi!(u64);
+impl_from_for_fi!(u128);
