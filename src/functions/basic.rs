@@ -1,5 +1,6 @@
 
 use crate::fi::fi;
+use std::ops::{Index, IndexMut};
 
 // abs: --> positive; neg: --> negative; invert --> inverts --> postive if negative/negative if positive
 // invert_bits
@@ -79,8 +80,8 @@ impl fi {
     }
 
     pub fn spruce_up(&self) -> Self {
-        let mut valid = false;
-        let mut output = Vec::new();
+        let mut valid: bool = false;
+        let mut output: Vec<bool> = Vec::new();
         for el in self.value.iter().rev() {
             if *el {
                 valid = true;
@@ -94,11 +95,37 @@ impl fi {
         output.reverse();
         fi{sign: self.sign, value: output}
     }
+    // implement insert and remove
+    pub fn push(&mut self, other: bool) {
+        self.value.push(other);
+    }
+
+    pub fn insert(&mut self, index: usize, elem: bool) {
+        self.value.insert(index, elem);
+    }
+
+    pub fn remove(&mut self, index: usize) -> bool {
+        self.value.remove(index)
+    }
 
 }
 
 impl Clone for fi {
     fn clone(&self) -> Self {
         fi{sign: self.sign.clone(), value: self.value.clone()}
+    }
+}
+
+impl Index<usize> for fi {
+    type Output = bool;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.value[index]
+    }
+}
+
+impl IndexMut<usize> for fi {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.value[index]
     }
 }

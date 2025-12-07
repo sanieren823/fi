@@ -13,9 +13,12 @@ pub struct bcd {
 }
 
 pub trait Parsing {
+    
     fn parse_fi(&self) -> fi;
 
     fn parse_bcd(&self) -> bcd;
+
+    
 }
 
 

@@ -14,9 +14,6 @@ macro_rules! impl_from_for_fi {
                     fixed_int.sign = true;
                 }
                 let mut num: $type = val.abs_diff(0) as $type;
-                if num < 0 {
-                    
-                }
                 while num != 0 {
                     let bit: $type = num % 2;
                     let res = match bit {
@@ -32,7 +29,7 @@ macro_rules! impl_from_for_fi {
                 }
                 let decimals: fi = fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
                 fixed_int *= decimals;
-                fixed_int
+                fixed_int.spruce_up()
             }
         }
     };

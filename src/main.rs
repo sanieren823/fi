@@ -1,11 +1,11 @@
 mod fi;
 mod conversion;
-use crate::fi::Parsing;
+// use crate::fi::Parsing;
 mod functions;
 use crate::fi::fi as ll;
 
 fn main() {
-    let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
+    // let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
     // let string = "109019".to_string();
     let n1: ll = (43 as i8).into();
     let n2: ll = (5 as i8).into();

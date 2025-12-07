@@ -1,6 +1,5 @@
 use std::cmp::Ordering;
 use crate::fi::fi;
-use std::ops::Neg; // implement
 
 
 impl PartialOrd for fi {
@@ -62,6 +61,8 @@ fn heaviside(num: &isize) -> bool {
         true
     }
 }
+
+
 
 impl fi {
     fn pretty(&self) -> fi {

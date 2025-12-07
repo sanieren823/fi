@@ -1,17 +1,5 @@
 use crate::fi::fi;
-use crate::fi::bcd;
-use crate::functions;
-use std::ops::Add;
-use std::ops::AddAssign;
-use std::ops::Sub;
-use std::ops::SubAssign;
-use std::ops::Mul;
-use std::ops::MulAssign;
-use std::ops::Div;
-use std::ops::DivAssign;
-use std::ops::Rem;
-use std::ops::RemAssign;
-use std::ops::Neg;
+use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg, Not};
 
 // add a mul_add (fused multiply and add)
 
@@ -103,6 +91,14 @@ impl Neg for fi {
     type Output = Self; 
 
     fn neg(self) -> Self::Output {
+        fi{sign: !self.sign, value: self.value}
+    }
+}
+// TODO: look for a better implementation
+impl Not for fi {
+    type Output = Self; 
+
+    fn not(self) -> Self::Output {
         fi{sign: !self.sign, value: self.value}
     }
 }
@@ -260,11 +256,7 @@ fn gen_div(num1: fi, num2: fi) -> fi {
 
 fn gen_rem(num1: fi, num2: fi) -> fi {
     let sign;
-    if num1.sign == num2.sign {
-        sign = false;
-    } else {
-        sign = true;
-    }
+    sign = num1.sign;
     // let d = num2.abs();
     if num2.is_zero() {
         panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")

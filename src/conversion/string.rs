@@ -1,6 +1,6 @@
 use crate::fi::fi;
 use crate::fi::bcd;
-use crate::conversion;
+// use crate::conversion;
 use crate::fi::Parsing;
 
 
@@ -42,7 +42,7 @@ impl fi {
         if len > 20 {
             string.insert(len - 20, '.')
         } else {
-            for num in 0..=20-len {
+            for _num in 0..=20-len {
                 string.insert(0, '0')  ;
             }
             string.insert(1, '.');
@@ -90,7 +90,7 @@ impl bcd {
         if len > 20 {
             string.insert(len - 20, '.')
         } else {
-            for num in 0..=20-len {
+            for _num in 0..=20-len {
                 string.insert(0, '0')  ;
             }
             string.insert(1, '.');
@@ -104,7 +104,7 @@ impl bcd {
 impl Parsing for String {
     // given that the parse_bcd function is inline there should not be any difference in runtime compared to new function (99% of the lines would be identical)
     #[inline(always)]
-    fn parse_fi(&self) -> fi { // can't handle extremely small numbers (0.00000000000000000020 and 0.00000000000000000050)
+    fn parse_fi(&self) -> fi { 
         self.parse_bcd().bcd_bin()
     }
 
@@ -157,7 +157,7 @@ impl Parsing for String {
         let decimals: usize = count - len;  
         // rounds if there are more than 20 decimals
         if decimals > 20 {
-            for i in 0..decimals - 21 { // plus one since the last 4-bit will get special handeling
+            for _i in 0..decimals - 21 { // plus one since the last 4-bit will get special handeling
                 bcd.value.pop();
             }
             // checks if the 4-bit at index 20 after the decimal point will need a carry
@@ -176,7 +176,7 @@ impl Parsing for String {
             }
         } else {
             // adds missing decimals 
-            for i in 0..20-decimals {
+            for _i in 0..20-decimals {
                 bcd.value.push([false, false, false, false].to_vec())
             }
         }
