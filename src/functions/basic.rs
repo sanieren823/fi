@@ -1,5 +1,5 @@
 
-use crate::fi::Fi;
+use crate::fi::FiBin;
 use std::ops::{Index, IndexMut};
 use core::slice::{Iter, IterMut};
 
@@ -50,7 +50,7 @@ use core::slice::{Iter, IterMut};
     
 // }
 
-impl Fi {
+impl FiBin {
     pub fn invert_bits(mut self) -> Self { // remove mut
         for i in 0..self.value.len() {
             self.value[i] ^= true;
@@ -60,16 +60,16 @@ impl Fi {
     }
     
     pub fn abs(&self) -> Self {
-        Fi{sign: false, value: self.value.clone()}
+        FiBin{sign: false, value: self.value.clone()}
     }
 
     pub fn neg(&self) -> Self {
-        Fi{sign: true, value: self.value.clone()}
+        FiBin{sign: true, value: self.value.clone()}
     }
 
     // dublicate of Neg
     pub fn invert(&self) -> Self {
-        Fi{sign: !self.sign.clone(), value: self.value.clone()}
+        FiBin{sign: !self.sign.clone(), value: self.value.clone()}
     }
     
     pub fn len(&self) -> usize {
@@ -78,6 +78,10 @@ impl Fi {
 
     pub fn is_zero(&self) -> bool {
         self.spruce_up().value == Vec::new()
+    }
+
+    pub fn is_integer(&self) -> bool {
+        (self.clone() % FiBin::from(1)).is_zero()
     }
 
     pub fn spruce_up(&self) -> Self {
@@ -94,7 +98,7 @@ impl Fi {
             }
         }
         output.reverse();
-        Fi{sign: self.sign, value: output}
+        FiBin{sign: self.sign, value: output}
     }
     // implement insert and remove
     pub fn push(&mut self, other: bool) {
@@ -115,16 +119,23 @@ impl Fi {
     pub fn iter_mut(&mut self) -> IterMut<'_, bool> {
         self.value.iter_mut()
     }
+    pub fn decimals() -> Self { // TODO: find a better name
+        FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]}
+    }
+    pub fn one() -> Self {
+        FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]}
+    }
+    // TODO: implement method for every number between -10 and 10 + sqrt(2) + sqrt(3) + sqrt(5) + e + pi + e^2 + pi^2 + e/2 + pi/2 + pi/3 + pi/4 + 2pi + ln(2) + ln(3) + ln(5)
 
 }
 
-impl Clone for Fi {
+impl Clone for FiBin {
     fn clone(&self) -> Self {
-        Fi{sign: self.sign.clone(), value: self.value.clone()}
+        FiBin{sign: self.sign.clone(), value: self.value.clone()}
     }
 }
 
-impl Index<usize> for Fi {
+impl Index<usize> for FiBin {
     type Output = bool;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -132,7 +143,7 @@ impl Index<usize> for Fi {
     }
 }
 
-impl IndexMut<usize> for Fi {
+impl IndexMut<usize> for FiBin {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.value[index]
     }

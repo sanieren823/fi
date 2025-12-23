@@ -1,5 +1,5 @@
-use crate::fi::Fi;
-use crate::fi::bcd;
+use crate::fi::FiBin;
+use crate::fi::FiBcd;
 
 
 // matches a 4-bit in LE integer to its approriate value
@@ -104,9 +104,9 @@ fn minus_three(input: &[bool]) -> [bool; 4] {
 
 
 
-impl Fi {
+impl FiBin {
     // double-dabble is implemented for LE (as thefi is stored in LE)
-    pub fn bin_bcd(&self) -> bcd {
+    pub fn bin_bcd(&self) -> FiBcd {
         let length: usize = self.value.len();
         if length < 4 {
             let mut incomplete = self.value.clone(); // le or be
@@ -114,7 +114,7 @@ impl Fi {
                 incomplete.push(false);
             }
             incomplete.reverse();
-            return bcd{sign: self.sign, value: vec![incomplete]};
+            return FiBcd{sign: self.sign, value: vec![incomplete]};
         }
         // defines output larger as the bcd encoding takes up more bits than a common binary encoding
         let mut output: Vec<bool> = vec![false; length + (length - 4) / 3 + 1]; // why +1: because index != length
@@ -161,14 +161,14 @@ impl Fi {
         }
         
         
-        bcd{sign: self.sign, value: vec}
+        FiBcd{sign: self.sign, value: vec}
     }
 }
 
 
-impl bcd {
+impl FiBcd {
     // reverse double-dabble is implemented for BE (as the bcd is stored in BE)
-    pub fn bcd_bin(&self) -> Fi {
+    pub fn bcd_bin(&self) -> FiBin {
         // flatten the two-dimensional vector
         let mut flat: Vec<bool> = Vec::new();
         for i in 0..self.value.len() {
@@ -227,7 +227,7 @@ impl bcd {
                 }
             }
         }
-        Fi{sign: self.sign, value: res}        
+        FiBin{sign: self.sign, value: res}        
     } 
 }
   

@@ -1,24 +1,39 @@
 use std::fmt;
 
 
+
 // sign-magnitude
 #[derive(Debug)]
-pub struct Fi {
+pub struct FiBin {
     pub sign: bool, // true: neg; false: pos
     pub value: Vec<bool>, // 0 is the lsb
 }
 
 #[derive(Debug)]
-pub struct bcd {
+pub struct FiLong {
     pub sign: bool,
-    pub value: Vec<Vec<bool>>
+    pub value: Vec<u64>, // research on u128
 }
+
+#[derive(Debug)]
+pub struct FiBcd { // should it really be public?
+    pub sign: bool,
+    pub value: Vec<Vec<bool>>,
+}
+
+#[derive(Debug)]
+pub struct FiBytes {
+    pub sign: bool,
+    pub value: Vec<u8>,
+}
+
+
 
 pub trait Parsing {
     
-    fn parse_fi(&self) -> Fi;
+    fn parse_fi(&self) -> FiBin;
 
-    fn parse_bcd(&self) -> bcd;
+    fn parse_bcd(&self) -> FiBcd;
 
     
 }
@@ -26,7 +41,7 @@ pub trait Parsing {
 
 
 
-impl fmt::Display for Fi {
+impl fmt::Display for FiBin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut string: String = String::new();
         for el in self.value.iter() {
@@ -50,7 +65,7 @@ fn match_u8(bit: &bool) -> u8 {
     }
 }
 
-impl Fi {
+impl FiBin {
     // #[inline(always)]
 
     // #[inline(always)]
@@ -63,11 +78,11 @@ impl Fi {
     //     // TODO
     // }
     pub const fn new() -> Self {
-       Fi{sign: false, value: Vec::new()}
+       FiBin{sign: false, value: Vec::new()}
     }
 }
 
-impl bcd {
+impl FiBcd {
     // #[inline(always)]
 
     // #[inline(always)]
@@ -80,7 +95,7 @@ impl bcd {
     //     // TODO
     // }
     pub const fn new() -> Self {
-        bcd{sign: false, value: Vec::new()}
+        FiBcd{sign: false, value: Vec::new()}
     }
 }
 

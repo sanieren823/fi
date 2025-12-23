@@ -1,21 +1,8 @@
-use crate::fi::Fi;
+use crate::fi::FiBin;
 use crate::errors::FiError;
 use crate::errors::FiErrorKind;
-use crate::fi::bcd;
-use crate::conversion;
-use crate::fi::Parsing;
-use crate::functions;
 
-
-pub trait ParseInt<T> {
-    fn parse(&self) -> Result<T, FiError>;
-}
-
-pub trait ParseIntGeneric<T> {
-    fn parse<S>(&self) -> Result<S, FiError>;
-}
-
-
+// TODO: add a function that converts every number to it's usual binary representaiotn in FiBin --> 6 --> 110 (not a 40 digit long vec)
 trait Numeric {
     const BITS: u32;
     const MIN: Self;
@@ -30,16 +17,6 @@ trait Numeric {
     fn is_zero(self) -> bool;
     fn neg(self) -> Self;
 }
-// impl Numeric for i8 {}
-// impl Numeric for i16 {}
-// impl Numeric for i32 {}
-// impl Numeric for i64 {}
-// impl Numeric for i128 {}
-// impl Numeric for u8 {}
-// impl Numeric for u16 {}
-// impl Numeric for u32 {}
-// impl Numeric for u64 {}
-// impl Numeric for u128 {}
 
 
 macro_rules! impl_numeric {
@@ -90,9 +67,9 @@ impl_numeric!(u128);
 
 macro_rules! impl_from_for_fi {
     ($type:ty) => {
-        impl From<$type> for Fi {
-            fn from(val: $type) -> Fi {
-                let mut fixed_int = Fi::new();
+        impl From<$type> for FiBin {
+            fn from(val: $type) -> FiBin {
+                let mut fixed_int = FiBin::new();
                 if val < 0 { 
                     fixed_int.sign = true;
                 }
@@ -110,7 +87,7 @@ macro_rules! impl_from_for_fi {
                     }
 
                 }
-                let decimals: Fi = Fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
+                let decimals: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
                 fixed_int *= decimals;
                 fixed_int.spruce_up()
             }
@@ -123,10 +100,10 @@ macro_rules! impl_from_for_fi {
 // TODO
 // macro_rules! impl_parse_for_fi {
 //     ($type:ty) => {
-//         impl ParseInt<$type> for Fi {
+//         impl ParseInt<$type> for FiBin {
 //             fn parse(&self) -> Result<$type, FiError> {
-//                 let divisor: Fi = Fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
-//                 let bits: Fi = (self.clone() / divisor).spruce_up();
+//                 let divisor: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
+//                 let bits: FiBin = (self.clone() / divisor).spruce_up();
 //                 if bits.len() > <$type>::BITS as usize {
 //                     return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large."));
 //                 }
@@ -150,7 +127,7 @@ macro_rules! impl_from_for_fi {
 
 // macro_rules! impl_parse_for_fi_generic {
 //     ($type:ty) => {
-//         impl ParseIntGeneric<$type> for Fi {
+//         impl ParseIntGeneric<$type> for FiBin {
             
 //         }
 //     };
@@ -158,22 +135,22 @@ macro_rules! impl_from_for_fi {
 
 
 // TODO: polish (might even refactor)
-impl Fi {
+impl FiBin {
     pub fn parse<S: Numeric + std::fmt::Debug>(&self) -> Result<S, FiError>
     where
         S: Numeric
     {
-        let divisor: Fi = Fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
-        let bits: Fi = (self.clone() / divisor).spruce_up();
-        if (bits.len() + match_u8(&!<S>::MIN.is_zero()) as usize) > <S>::BITS as usize {
+        let divisor: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
+        let bits: FiBin = (self.clone() / divisor).spruce_up(); // converts the number to an integer
+        if (bits.len() + match_u8(&!<S>::MIN.is_zero()) as usize) > <S>::BITS as usize { // checks if the numbes is larger than the type allows
             return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large."));
         }
         let mut res: S = S::new();
-        for i in 0..bits.len() {
-            res = res.add(S::two().pow(i as u32).mul(S::u8_to_numeric(match_u8(&bits[i as usize]))));
+        for i in 0..bits.len() { // this loop actually parses the number
+            res = res.add(S::two().pow(i as u32).mul(S::u8_to_numeric(match_u8(&bits[i as usize])))); 
         }
         if self.sign {
-            if !<S>::MIN.is_zero() {
+            if !<S>::MIN.is_zero() { // basically checks if a type is signed
                 res = res.neg();
             } else {
                 return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "You can't assign a negative number to an unsigned type. Make sure the fixed interger is greater than zero before parsing into an unsigned number."));

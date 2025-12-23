@@ -1,14 +1,14 @@
 use std::cmp::Ordering;
-use crate::fi::Fi;
+use crate::fi::FiBin;
 
 
-impl PartialOrd for Fi {
+impl PartialOrd for FiBin {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for Fi {
+impl Ord for FiBin {
     fn cmp(&self, other: &Self) -> Ordering {
 
         match self.sign.cmp(&other.sign) {
@@ -46,13 +46,13 @@ impl Ord for Fi {
     }
 }
 
-impl PartialEq for Fi {
+impl PartialEq for FiBin {
     fn eq(&self, other: &Self) -> bool {
         self.value == other.value && self.sign == other.sign
     }
 }
 
-impl Eq for Fi {}
+impl Eq for FiBin {}
 
 fn heaviside(num: &isize) -> bool {
     if *num < 0 {

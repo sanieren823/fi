@@ -11,6 +11,7 @@ pub struct FiError {
 pub enum FiErrorKind {
     NumberTooLarge,
     NumberCannotBeNegative,
+    ZeroIsAnInvalidInput,
 
 }
 impl fmt::Display for FiError {

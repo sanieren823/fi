@@ -1,19 +1,19 @@
-use crate::fi::Fi;
+use crate::fi::FiBin;
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Shl, ShlAssign, Shr, ShrAssign};
 
 // TODO: write tests for all bitwise functions
 
 
 
-impl BitAnd for Fi {
+impl BitAnd for FiBin {
     type Output = Self;
 
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        let mut new = Fi::new();
+        let mut new = FiBin::new();
         new.sign = self.sign & rhs.sign;
-        let mut smallest: Fi;
-        let biggest: Fi; 
+        let mut smallest: FiBin;
+        let biggest: FiBin; 
         if self.len() >= rhs.len() {
             smallest = rhs;
             biggest = self;
@@ -31,22 +31,22 @@ impl BitAnd for Fi {
     }
 }
 
-impl BitAndAssign for Fi {
+impl BitAndAssign for FiBin {
 
     fn bitand_assign(&mut self, rhs: Self) {
         *self = self.clone() & rhs
     }
 }
 
-impl BitOr for Fi {
+impl BitOr for FiBin {
     type Output = Self;
 
 
     fn bitor(self, rhs: Self) -> Self::Output {
-        let mut new = Fi::new();
+        let mut new = FiBin::new();
         new.sign = self.sign | rhs.sign;
-        let mut smallest: Fi;
-        let biggest: Fi; 
+        let mut smallest: FiBin;
+        let biggest: FiBin; 
         if self.len() >= rhs.len() {
             smallest = rhs;
             biggest = self;
@@ -64,22 +64,22 @@ impl BitOr for Fi {
     }
 }
 
-impl BitOrAssign for Fi {
+impl BitOrAssign for FiBin {
 
     fn bitor_assign(&mut self, rhs: Self) {
         *self = self.clone() | rhs
     }
 }
 
-impl BitXor for Fi {
+impl BitXor for FiBin {
     type Output = Self;
 
 
     fn bitxor(self, rhs: Self) -> Self::Output {
-        let mut new = Fi::new();
+        let mut new = FiBin::new();
         new.sign = self.sign ^ rhs.sign;
-        let mut smallest: Fi;
-        let biggest: Fi; 
+        let mut smallest: FiBin;
+        let biggest: FiBin; 
         if self.len() >= rhs.len() {
             smallest = rhs;
             biggest = self;
@@ -97,7 +97,7 @@ impl BitXor for Fi {
     }
 }
 
-impl BitXorAssign for Fi {
+impl BitXorAssign for FiBin {
 
     fn bitxor_assign(&mut self, rhs: Self) {
         *self = self.clone() ^ rhs
@@ -105,7 +105,7 @@ impl BitXorAssign for Fi {
 }
 
 
-impl Shl<usize> for Fi {
+impl Shl<usize> for FiBin {
     type Output = Self;
 
     fn shl(self, rhs: usize) -> Self::Output {
@@ -117,14 +117,14 @@ impl Shl<usize> for Fi {
     }
 }
 
-impl ShlAssign<usize> for Fi {
+impl ShlAssign<usize> for FiBin {
     fn shl_assign(&mut self, rhs: usize) {
         *self = self.clone() << rhs;
     }
 }
 
 
-impl Shr<usize> for Fi {
+impl Shr<usize> for FiBin {
     type Output = Self;
 
     fn shr(self, rhs: usize) -> Self::Output {
@@ -136,7 +136,7 @@ impl Shr<usize> for Fi {
     }
 }
 
-impl ShrAssign<usize> for Fi {
+impl ShrAssign<usize> for FiBin {
     fn shr_assign(&mut self, rhs: usize) {
         *self = self.clone() >> rhs;
     }
