@@ -1,5 +1,5 @@
 
-use crate::fi::FiBin;
+use crate::fi::{FiBin, FiLong};
 use std::ops::{Index, IndexMut};
 use core::slice::{Iter, IterMut};
 
@@ -112,6 +112,9 @@ impl FiBin {
     pub fn remove(&mut self, index: usize) -> bool {
         self.value.remove(index)
     }
+    pub fn pop(&mut self, index: usize) -> Option<bool> {
+        self.value.pop()
+    }
 
     pub fn iter(&self) -> Iter<'_, bool> {
         self.value.iter()
@@ -126,6 +129,54 @@ impl FiBin {
         FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]}
     }
     // TODO: implement method for every number between -10 and 10 + sqrt(2) + sqrt(3) + sqrt(5) + e + pi + e^2 + pi^2 + e/2 + pi/2 + pi/3 + pi/4 + 2pi + ln(2) + ln(3) + ln(5)
+
+}
+
+impl FiLong {
+    pub fn new() -> Self {
+        FiLong{sign: false, value: Vec::new()}
+    }
+    pub fn abs(self) -> Self {
+        FiLong{sign: false, value: self.value}
+    }
+    pub fn spruce_up(&self) -> Self {
+        let mut output: Vec<u64> = self.value.clone();
+        for el in self.value.iter().rev() {
+            if *el != 0 {
+                break;
+            }
+            output.pop();
+        }
+        output.reverse();
+        FiLong{sign: self.sign, value: output}
+    }
+
+    pub fn len(&self) -> usize {
+        self.value.len()
+    }
+
+    pub fn push(&mut self, other: u64) {
+        self.value.push(other);
+    }
+
+    pub fn insert(&mut self, index: usize, elem: u64) {
+        self.value.insert(index, elem);
+    }
+
+    pub fn remove(&mut self, index: usize) -> u64 {
+        self.value.remove(index)
+    }
+
+    pub fn pop(&mut self, index: usize) -> Option<u64> {
+        self.value.pop()
+    }
+
+    pub fn is_zero(&self) -> bool {
+        self.spruce_up().value == Vec::new()
+    }
+    pub fn iter(&self) -> Iter<'_, u64> {
+        self.value.iter()
+    }
 
 }
 
@@ -149,3 +200,22 @@ impl IndexMut<usize> for FiBin {
     }
 }
 
+impl Clone for FiLong {
+    fn clone(&self) -> Self {
+        FiLong{sign: self.sign.clone(), value: self.value.clone()}
+    }
+}
+
+impl Index<usize> for FiLong {
+    type Output = u64;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.value[index]
+    }
+}
+
+impl IndexMut<usize> for FiLong {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.value[index]
+    }
+}

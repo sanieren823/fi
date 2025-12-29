@@ -315,19 +315,28 @@ pub fn time_comparison(num1: FiBin, num2: FiBin) {
     let mul = Instant::now();
     let p: FiBin = gen_mul(num1.clone(), num2.clone()); // should probably test the gen function as they are the main functions
     println!("FiBin: {:?}", mul.elapsed());
+    let mul_long = Instant::now();
+    let q_long: FiBin = (num1.to_long().mul(num2.to_long())).to_bin();
+    println!("FiLong: {:?}", mul_long.elapsed());
     let mul_int = Instant::now();
     let p_int: i128= int_1 * int_2; // should probably test the gen function as they are the main functions
     println!("i128: {:?}", mul_int.elapsed());
     let div = Instant::now();
-    let q: FiBin = gen_div(p, num2.clone());
+    let q: FiBin = gen_div(p.clone(), num2.clone());
     println!("FiBin: {:?}", div.elapsed());
+    // let div_int = Instant::now();
+    // let q_int: i128 = p_int / int_2;
+    // println!("FiLong: {:?}", div_int.elapsed());
     let div_int = Instant::now();
-    let q_int: i128= p_int / int_2;
+    let q_int: i128 = p_int / int_2;
     println!("i128: {:?}", div_int.elapsed());
     let val: FiBin = FiBin::from(u64::MAX);
     let conv_int = Instant::now();
     let conv: String = val.to_string();
     println!("conv: {:?}", conv_int.elapsed());
+    let div = Instant::now();
+    p / q;
+    println!("div: {:?}", div.elapsed());
     let vec: Vec<bool> = vec![true; 2];
     let u8 = Instant::now();
     let val = small_conv(vec);
