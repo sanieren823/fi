@@ -304,7 +304,7 @@ impl From<String> for FiBin {
         } else {
             // adds missing decimals 
             for _i in 0..20-decimals {
-                bcd.value.push([false, false, false, false].to_vec())
+               bcd.value.push([false, false, false, false].to_vec())
             }
         }
         bcd.bcd_bin()

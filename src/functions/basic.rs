@@ -147,7 +147,6 @@ impl FiLong {
             }
             output.pop();
         }
-        output.reverse();
         FiLong{sign: self.sign, value: output}
     }
 
@@ -171,6 +170,10 @@ impl FiLong {
         self.value.pop()
     }
 
+    pub fn last(self) -> Option<u64> {
+        self.value.last().copied()
+    }
+
     pub fn is_zero(&self) -> bool {
         self.spruce_up().value == Vec::new()
     }
@@ -178,6 +181,21 @@ impl FiLong {
         self.value.iter()
     }
 
+    pub fn reverse(&mut self) {
+        self.value.reverse();
+    }
+
+    pub fn reverse_bits(self) -> Self {
+        let mut res: FiLong = FiLong::new();
+        for el in self.iter().rev() {
+            res.push(el.reverse_bits());
+        }
+        res
+    }
+
+    pub fn decimals() -> Self {
+        FiLong {sign: false, value: vec![13399722918938673152, 7145508105175220139, 29]}
+    }
 }
 
 impl Clone for FiBin {

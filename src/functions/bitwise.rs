@@ -276,8 +276,13 @@ impl Shl<usize> for FiLong {
         output.push(0);
         for i in 0..self.len() {
             let this = self[i] << exact;
+            if exact == 0 {
+                output[i + full] |= this;
+                break;
+            }
+            
             let next = self[i] >> (64 - exact);
-            output[i] |= this;
+            output[i + full] |= this;
             if next > 0  || i + 1 < self.len() {
                 output.push(next);
             }
@@ -310,6 +315,9 @@ impl Shr<usize> for FiLong {
             }
             let mut output: Vec<u64> = Vec::with_capacity(fi.value.capacity());
             for i in 0..fi.len() {
+                if exact == 0 {
+                    break;
+                }
                 let this = fi[i] >> exact;
                 let prev = fi[i] << (64 - exact);
                 output.push(this);
