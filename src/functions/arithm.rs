@@ -590,7 +590,6 @@ pub fn long_mul(num1: FiLong, num2: FiLong) -> FiLong {
 }
 
 pub fn long_div(num1: FiLong, num2: FiLong) -> FiLong {
-    println!{"{:?}", num1};
     let sign;
     if num1.sign == num2.sign {
         sign = false;
@@ -630,7 +629,6 @@ pub fn long_div(num1: FiLong, num2: FiLong) -> FiLong {
 }
 
 pub fn long_rem(num1: FiLong, num2: FiLong) -> FiLong {
-    println!("n1: {:?}, n2: {:?}", num1, num2);
     let sign;
     if num1.sign == num2.sign {
         sign = false;
@@ -651,7 +649,7 @@ pub fn long_rem(num1: FiLong, num2: FiLong) -> FiLong {
     let num_bits = (inverse.len() * 64) - 1 - offset;
     for _ in 0..num_bits{
         r <<= 1;
-        r |= FiLong{sign: false, value: vec![inverse[0] % 2]};
+        r[0] |= inverse[0] & 1;
         inverse >>= 1;
         if r >= num2 {
             r -= num2.clone();
