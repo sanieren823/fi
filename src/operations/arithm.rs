@@ -537,8 +537,12 @@ impl Mul<&FiLong> for &FiLong {
     type Output = FiLong;
 
     fn mul(self, num: &FiLong) -> Self::Output {
+        let time = Instant::now();
         let res = long_mul(self, num);
-        long_div(&res, &FiLong{sign: false, value: vec![7766279631452241920, 5]}).spruce_up()
+        println!("mul: {:?}", time.elapsed());
+        let val = long_div(&res, &FiLong{sign: false, value: vec![7766279631452241920, 5]}).spruce_up();
+        // println!("mul: {:?}; {:?}", res, val);
+        val
     }
 }
 
@@ -739,20 +743,21 @@ fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
     let num1 = num1.spruce_up(); // these two lines are important as the length of a FiLong doesn't necessarily correlate with the used digits
     let num2 = num2.spruce_up();
     let len = num1.len() + num2.len(); 
-    let mut carries: Vec<u128> = vec![0; len];
-    let mut result: FiLong = FiLong{sign: num1.sign ^ num2.sign, value: vec![0; len]}; 
+    let mut result: FiLong = FiLong{sign: num1.sign ^ num2.sign, value: Vec::with_capacity(len)}; 
+    result.value.resize(len, 0);
     for i in 0..num1.len() { // somewhat standard multiplication
+        let mut carry: u128 = 0;
         for j in 0..num2.len() {
-            let res: u128 = num1[i] as u128 * num2[j] as u128 + carries[i + j]; // maximum number is 2^128 - 2^65 + 2^64 -> the high bits have a maximum of 2^64 - 2
-            let calc = result[i + j] as u128 + low_bits(res); // this number is smaller than 2^65 --> high bits are maximum 1
-            carries[i + j + 1] += high_bits(res) + high_bits(calc); // the maximum of this number is u64::MAX --> always a valid number
-            result[i + j] = low_bits(calc) as u64;
-            carries[i + j] = 0;
+            let prod: u128 = num1[i] as u128 * num2[j] as u128;
+            let sum: u128 = result[i + j] as u128 + prod + carry;
+            result[i + j] = sum as u64;
+            carry = sum >> 64;
         }
+        result[i + num2.len()] = carry as u64;
     }
-    if carries[len - 1] != 0 { // checks if there's a carry in the last operation
-        result[len - 1] = carries[len - 1] as u64;
-    }
+    // if carries[len - 1] != 0 { // checks if there's a carry in the last operation
+    //     result[len - 1] = carries[len - 1] as u64;
+    // }
     result
 }
 
@@ -941,7 +946,6 @@ impl RoundN<&usize> for &FiLong {
 }
 
 fn floor_div(num1: &FiLong, num2: &FiLong) -> FiLong {
-    println!("floor: {:?}, {:?}", num1.to_bin().to_string(), num2.to_bin().to_string());
     let sign; // "calculates" the sign of the result
     if num1.sign == num2.sign {
         sign = false;
@@ -970,7 +974,6 @@ fn floor_div(num1: &FiLong, num2: &FiLong) -> FiLong {
             r -= num2;
             q |= &bit_mask;
         }
-        
     }
     q
 }
@@ -1007,7 +1010,6 @@ fn ceil_div(num1: &FiLong, num2: &FiLong) -> FiLong {
             r -= num2;
             q |= &bit_mask;
         }
-        
     }  
     r <<= 1;
     if !r.is_zero() { // rounds if necessary

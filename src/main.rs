@@ -7,7 +7,7 @@ mod operations;
 use crate::fi::{FiBin, FiLong};
 use std::time::Instant;
 use crate::operations::arithm::{Floor, Ceil, Round, RoundN};
-use crate::operations::math::{Logarithm, PowInteger, Factorial, PowerOfTwo, PowReal};
+use crate::operations::math::{Factorial, Logarithm, PowInteger, PowReal, PowerOfTwo, Exponential};
 fn main() {
     // let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
     // let string = "109019".to_string();
@@ -30,13 +30,13 @@ fn main() {
     println!("val: {:?}", FiLong::from(2u128.pow(65)).parse::<u128>().unwrap());
     let mut new1 = n1.to_long();
     let mut new2 = n2.to_long();
-    println!("{:?}", n1.to_long().to_bin().to_string());
+    println!("{:?}", FiLong::e() / 2);
     println!("{:?}", (dividend.to_long() % FiLong::one()).to_bin().to_string());
     println!("round: {:?}", dividend.to_long());
     println!("{:?}, {:?}", new1, new2);
     println!("sub: {:?}", (&new1 / &new2).to_bin().to_string());
-    println!("{:?}", FiLong::one() * 1000000000);
-    println!("{:?}", FiLong::one() / 1000000000);
+    println!("{:?}", FiLong::one() * 10u128);
+    println!("{:?}", FiLong::one() / 10u128);
     println!("{:?}", FiBin::from(String::from("2.718281828459045235360287471352")).to_long());
     println!("{:?}", FiBin::from(String::from("5.12039898129")).to_long().pot().to_bin().to_string());
     let time = Instant::now();
@@ -49,19 +49,11 @@ fn main() {
     // println!("{res}");
     // println!("{}", n1 < n2);
     // println!("{:?}", fi::fi1024{leading: 12, vec: vec![13, 31, 17], trailing: 123}.full_vec());
-    let mut vec = Vec::new();
-    let mut vec2 = Vec::new();
-    for i in 0..50 {
-        vec.push(FiLong::billion() / FiLong::from(i).fact());
-        vec2.push(FiLong::from(2).ln().pow_int(i));
-    }
-    println!{"{:?}", vec};
-    println!{"{:?}", vec2};
     let start = Instant::now();
     let pot = new2.clone().pot();
     println!("{:?}, {:?}", start.elapsed(), pot.to_bin().to_string());
     let start = Instant::now();
-    let pow = new1.pow_r(new2);
+    let pow = new1.pow_r(new2.clone());
     println!("{:?}, {:?}", start.elapsed(), pow.to_bin().to_string());
 }
 

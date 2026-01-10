@@ -133,15 +133,22 @@ impl FiBin {
 }
 
 impl FiLong {
+    #[inline(always)]
     pub fn new() -> Self {
         FiLong{sign: false, value: Vec::new()}
     }
+
+    #[inline(always)]
     pub fn abs(self) -> Self {
         FiLong{sign: false, value: self.value}
     }
+
+    #[inline(always)]
     pub fn absolute(&self) -> FiLong { // this function is somewhat a dublicate of the .abs() but i need it to work with references so there it is
         FiLong{sign: false, value: self.value.clone()}
     }
+
+    #[inline(always)]
     pub fn spruce_up(&self) -> Self {
         let mut output: Vec<u64> = self.value.clone();
         for el in self.value.iter().rev() {
@@ -153,46 +160,57 @@ impl FiLong {
         FiLong{sign: self.sign, value: output}
     }
 
+    #[inline(always)]
     pub fn len(&self) -> usize {
         self.value.len()
     }
 
+    #[inline(always)]
     pub fn push(&mut self, other: u64) {
         self.value.push(other);
     }
 
+    #[inline(always)]
     pub fn insert(&mut self, index: usize, elem: u64) {
         self.value.insert(index, elem);
     }
 
+    #[inline(always)]
     pub fn remove(&mut self, index: usize) -> u64 {
         self.value.remove(index)
     }
 
-    pub fn pop(&mut self, index: usize) -> Option<u64> {
+    #[inline(always)]
+    pub fn pop(&mut self) -> Option<u64> {
         self.value.pop()
     }
-
+    
+    #[inline(always)]
     pub fn last(self) -> Option<u64> {
         self.value.last().copied()
     }
 
+    #[inline(always)]
     pub fn is_zero(&self) -> bool {
         self.spruce_up().value == Vec::new()
     }
 
+    #[inline(always)]
     pub fn is_integer(&self) -> bool {
         self % FiLong::one() == FiLong::new()
     }
 
+    #[inline(always)]
     pub fn iter(&self) -> Iter<'_, u64> {
         self.value.iter()
     }
 
+    #[inline(always)]
     pub fn reverse(&mut self) {
         self.value.reverse();
     }
 
+    #[inline(always)]
     pub fn reverse_bits(self) -> Self {
         let mut res: FiLong = FiLong::new();
         for el in self.iter().rev() {
@@ -201,36 +219,124 @@ impl FiLong {
         res
     }
 
+    #[inline(always)]
     pub fn decimals() -> Self {
         FiLong {sign: false, value: vec![13399722918938673152, 7145508105175220139, 29]}
     }
+    
+    #[inline(always)]
+    pub fn decimal_part(&self) -> Self {
+        self % FiLong::one()
+    }
 
+    #[inline(always)]
+    pub fn value_of_sign(self, s: bool) -> Self {
+        FiLong{sign: s, value: self.value}
+    }
+
+    #[inline(always)]
+    pub fn gen_increment(&mut self, s: bool) {
+        *self += FiLong{sign: s, value: vec![7766279631452241920, 5]};
+    }
+
+    #[inline(always)]
+    pub fn gen_decrement(&mut self, s: bool) {
+        *self -= FiLong{sign: s, value: vec![7766279631452241920, 5]};
+    }
+
+    #[inline(always)]
     pub fn one() -> Self {
         FiLong{sign: false, value: vec![7766279631452241920, 5]}
     }
 
+    #[inline(always)]
+    pub fn neg_one() -> Self {
+        FiLong{sign: false, value: vec![7766279631452241920, 5]}
+    }
+
+    #[inline(always)]
     pub fn two() -> Self {
         FiLong{sign: false, value: vec![15532559262904483840, 10]}
     }
 
+    #[inline(always)]
+    pub fn ten() -> Self {
+        FiLong{sign: false, value: vec![3875820019684212736, 54]}
+    }
+
+    #[inline(always)]
+    pub fn tenth() -> Self {
+        FiLong{sign: false, value: vec![10000000000000000000]}
+    }
+
+    #[inline(always)]
+    pub fn hundred() -> Self {
+        FiLong{sign: false, value: vec![1864712049423024128, 542]}
+    }
+
+    #[inline(always)]
+    pub fn hundredth() -> Self {
+        FiLong{sign: false, value: vec![1000000000000000000]}
+    }
+
+    #[inline(always)]
     pub fn thousand() -> Self {
-        FiLong {sign: false, value: vec![200376420520689664, 5421]}
+        FiLong{sign: false, value: vec![200376420520689664, 5421]}
     }
 
+    #[inline(always)]
     pub fn thousandth() -> Self {
-        FiLong {sign: false, value: vec![100000000000000000]}
+        FiLong{sign: false, value: vec![100000000000000000]}
     }
 
+    #[inline(always)]
+    pub fn million() -> Self {
+        FiLong{sign: false, value: vec![15908979783594147840, 5421010]}
+    }
+
+    #[inline(always)]
+    pub fn millionth() -> Self {
+        FiLong{sign: false, value: vec![100000000000000]}
+    }
+
+    #[inline(always)]
     pub fn billion() -> Self {
-        FiLong {sign: false, value: vec![7886392056514347008, 5421010862]}
+        FiLong{sign: false, value: vec![7886392056514347008, 5421010862]}
     }
 
+    #[inline(always)]
     pub fn billionth() -> Self {
-        FiLong {sign: false, value: vec![100000000000]}
+        FiLong{sign: false, value: vec![100000000000]}
     }
 
+    #[inline(always)]
+    pub fn trillion() -> Self {
+        FiLong{sign: false, value: vec![9632337040368467968, 5421010862427]}
+    }
+
+    #[inline(always)]
+    pub fn trillionth() -> Self {
+        FiLong{sign: false, value: vec![100000000]}
+    }
+
+    #[inline(always)]
     pub fn e() -> Self {
-        FiLong {sign: false, value: vec![13573765813970800912, 14]}
+        FiLong{sign: false, value: vec![13573765813970800912, 14]}
+    }
+
+    #[inline(always)]
+    pub fn e_div_2() -> Self {
+        FiLong {sign: false, value: vec![6786882906985400456, 7] }
+    }
+
+    #[inline(always)]
+    pub fn ln2() -> Self {
+        FiLong{sign: false, value: vec![13974485834865876094, 3]}
+    }
+
+    #[inline(always)]
+    pub fn half() -> Self {
+        FiLong{sign: false, value: vec![13106511852580896768, 2]}
     }
 }
 
