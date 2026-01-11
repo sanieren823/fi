@@ -553,6 +553,31 @@ impl FiLong {
         self.pow_int(3)
     }
 }
+fn lookup_num_bernoulli(n: usize) -> FiLong {
+    let arr = [FiLong::from("1"), FiLong::from("-1"), FiLong::from("1"), FiLong::from("-1"), FiLong::from("5"), FiLong::from("-691"), FiLong::from("7"), FiLong::from("-3691"), FiLong::from("43867"), FiLong::from("-174611"), FiLong::from("854513"), FiLong::from("-236364091"), FiLong::from("8553103"), FiLong::from("-23749461029"), FiLong::from("8615841276005"), FiLong::from("-7709321041217"), FiLong::from("2577687858367"), FiLong::from("-26315271553053477373"), FiLong::from("2929993913841559"), FiLong::from("-261082718496449122051")];
+    arr[n].clone()
+}
+
+fn lookup_den_bernoulli(n: usize) -> FiLong {
+    let arr = [FiLong::from("6"), FiLong::from("30"), FiLong::from("42"), FiLong::from("30"), FiLong::from("66"), FiLong::from("2730"), FiLong::from("6"), FiLong::from("510"), FiLong::from("798"), FiLong::from("330"), FiLong::from("138"), FiLong::from("2730"), FiLong::from("6"), FiLong::from("870"), FiLong::from("14322"), FiLong::from("510"), FiLong::from("6"), FiLong::from("-1919190"), FiLong::from("6"), FiLong::from("13530")];
+    arr[n].clone()
+}
+
+fn lookup_num_bernoulli_calc(n: usize) -> FiLong {
+    let arr = [FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: true, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: true, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![1937910009842106368, 27]}, FiLong{sign: true, value: vec![16943443957729198080, 3745]}, FiLong{sign: false, value: vec![17470469272746590208, 37]}, FiLong{sign: true, value: vec![17544573219291267072, 20008]}, FiLong{sign: false, value: vec![8919039647497060352, 237803]}, FiLong{sign: true, value: vec![2355636897145946112, 946568]}, FiLong{sign: false, value: vec![4705497475019964416, 4632324]}, FiLong{sign: true, value: vec![14735394401063796736, 1281332304]}, FiLong{sign: false, value: vec![4989132728540594176, 46366464]}, FiLong{sign: true, value: vec![149752777471426560, 128746086215]}, FiLong{sign: false, value: vec![9373257814498082816, 46706569146174]}, FiLong{sign: true, value: vec![7606701397510193152, 41792313106378]}, FiLong{sign: false, value: vec![798545564029419520, 13973673880155]}, FiLong{sign: true, value: vec![7111786010975928320, 13528164420866010793, 7]}, FiLong{sign: false, value: vec![15536869396137902080, 15883528833781620]}, FiLong{sign: true, value: vec![12262869239596056576, 13379703359431726623, 76]}];
+    arr[n].clone()
+}
+
+fn lookup_den_bernoulli_calc(n: usize) -> FiLong {
+    let arr = [FiLong{sign: false, value: vec![961635208879144960, 65]}, FiLong{sign: false, value: vec![10402312192664797184, 1951]}, FiLong{sign: false, value: vec![8737976563762462720, 6830]}, FiLong{sign: false, value: vec![5501720727113433088, 9107]}, FiLong{sign: false, value: vec![14840826552437964800, 32200]}, FiLong{sign: false, value: vec![8750847285274869760, 1953515]}, FiLong{sign: false, value: vec![13721827713163984896, 5919]}, FiLong{sign: false, value: vec![13458027427506683904, 663531]}, FiLong{sign: false, value: vec![14766147349596078080, 1323745]}, FiLong{sign: false, value: vec![14059156689068752896, 679794]}, FiLong{sign: false, value: vec![17866500431060926464, 345621]}, FiLong{sign: false, value: vec![9762824540299198464, 8169246]}, FiLong{sign: false, value: vec![17383537706369286144, 21141]}, FiLong{sign: false, value: vec![4877980077746290688, 3565507]}, FiLong{sign: false, value: vec![5300997791454068736, 67546554]}, FiLong{sign: false, value: vec![15043676404866613248, 2742597]}, FiLong{sign: false, value: vec![4521774043623325696, 36494]}, FiLong{sign: false, value: vec![12884462369710800896, 13108976794]}, FiLong{sign: false, value: vec![11946765188495048704, 45731]}, FiLong{sign: false, value: vec![1311290951863369728, 114420192]}];
+    arr[n].clone()
+}
+
+pub fn bernouilli_coeffi(){
+    for n in 1..21 {
+        println!("{:?}", lookup_num_bernoulli(n - 1));
+    }
+}
 
 
 
@@ -575,11 +600,29 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
             }
             res
         } else {
-            FiLong::new()
+            let decimals = self.decimal_part();
+            let int_part = self.floor() - FiLong::one();
+            lanczos(decimals) * int_part.fact()
         }
     }
 }
 
+
+fn a_g(z: FiLong) -> FiLong {
+    let coefficients = [FiLong::new()]; // TODO: calculate constants
+    let mut res = coefficients[0].clone();
+    for i in 1..coefficients.len() {
+        res += &coefficients[i] / (&z + i);
+    }
+    res
+}
+
+fn lanczos(z: FiLong) -> FiLong {
+    const G: usize = 10;
+    let sqrt_2pi =  FiLong{sign: false, value: vec![10855154504875879234, 13]};
+    let sum = &z + G + FiLong::one_half();
+    sqrt_2pi * (&sum).pow(&z + FiLong::one_half()) * -sum.exp() * a_g(z)
+}
 
 
 impl Termial for FiLong {
@@ -659,7 +702,7 @@ impl PowerOfTwo for &FiLong {
     }
 }
 
-impl PowReal<FiLong> for FiLong { // lower precision only around 17digits
+impl PowReal<FiLong> for FiLong{// lower precision only around 17digits
     type Output = FiLong;
 
     fn pow_r(self, rhs: FiLong) -> Self::Output {
@@ -924,7 +967,7 @@ impl Trigonometry for FiLong{
         sum / FiLong::ten()
     }
 
-    fn tan(self) -> Self::Output { // seperate implementation? + exception
+    fn tan(self) -> Self::Output{// seperate implementation? + exception
         let sin = (&self).sin();
         let cos = (&self).cos();
         if cos == FiLong::new() {
@@ -1137,7 +1180,7 @@ impl Trigonometry for &FiLong{
         sum / FiLong::ten()
     }
 
-    fn tan(self) -> Self::Output { // seperate implementation? + exception
+    fn tan(self) -> Self::Output{// seperate implementation? + exception
         let sin = self.sin();
         let cos = self.cos();
         if cos == FiLong::new() {

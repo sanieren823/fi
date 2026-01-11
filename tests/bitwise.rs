@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod tests {
     use fi::fi::FiLong;
-    use fi::operations::bitwise::*;
     #[test]
     fn and() {
         assert_eq!((FiLong{sign: false, value: vec![40]} & &FiLong::new()).spruce_up(), FiLong::new());
