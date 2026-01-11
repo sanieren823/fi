@@ -102,6 +102,10 @@ pub trait Trigonometry {
 
     fn coversin(self) -> Self::Output;
 
+    fn vercos(self) -> Self::Output;
+
+    fn covercos(self) -> Self::Output;
+
     fn exsec(self) -> Self::Output;
 
     fn excsc(self) -> Self::Output;
@@ -824,78 +828,140 @@ pow_for_int!(u32);
 pow_for_int!(u64);
 pow_for_int!(u128);
 
-// impl Trigonometry for FiLong{
-//     type Output = FiLong;
+impl Trigonometry for FiLong{
+    type Output = FiLong;
 
-//     fn sin(self) -> Self::Output {
-
-//     }
-
-//     fn cos(self) -> Self::Output {
-//         let mut x = &self % FiLong::pi();
-//         if x > FiLong::pi_div_two() {
-//             x -= FiLong::pi().value_of_sign(&self.sign);
-//         }
-//         let mut switch = true;
-//         let mut sum = FiLong::one();
-//         for n in 1..20 {
-//             sum += (&self).pow(2 * n) / lookup_fact(2 * n).value_of_sign(&switch);
-//             switch ^= true;
-//         }
-//         sum
-//     }
-
-//     fn tan(self) -> Self::Output;
-
-//     fn arcsin(self) -> Self::Output;
-
-//     fn arccos(self) -> Self::Output;
-
-//     fn arctan(self) -> Self::Output;
-
-//     fn sinh(self) -> Self::Output;
-
-//     fn cosh(self) -> Self::Output;
-
-//     fn tanh(self) -> Self::Output;
-
-//     fn arcsinh(self) -> Self::Output;
-
-//     fn arccosh(self) -> Self::Output;
-
-//     fn arctanh(self) -> Self::Output;
-
-//     fn cot(self) -> Self::Output;
-
-//     fn sec(self) -> Self::Output;
-
-//     fn csc(self) -> Self::Output;
-
-//     fn versin(self) -> Self::Output;
-
-//     fn coversin(self) -> Self::Output;
-
-//     fn exsec(self) -> Self::Output;
-
-//     fn excsc(self) -> Self::Output;
-// }
-
-pub fn cos(num: FiLong) -> FiLong {
-    let mut x = &num % FiLong::pi();
-    if x > FiLong::pi_div_two() {
-        x -= FiLong::pi().value_of_sign(&num.sign);
+    fn sin(self) -> Self::Output {
+        let mut x = &self % FiLong::pi();
+        if x > FiLong::pi_div_two() {
+            x -= FiLong::pi().value_of_sign(&self.sign);
+        }
+        let mut switch = true;
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&self).pow(2 * n + 1);
+            let fact = lookup_fact(2 * n + 1).value_of_sign(&switch);
+            sum += FiLong::ten() * &pow / &fact;
+            switch ^= true;
+        }
+        sum / FiLong::ten()
     }
-    let mut switch = true;
-    let mut sum = FiLong::one();
-    println!("{:?}", num.to_string());
-    for n in 1..20 {
-        let pow = (&num).pow(2 * n);
-        let fact = lookup_fact(2 * n).value_of_sign(&switch);
-        println!("n: {:?} val: {:?}", n,  (&pow / &fact).to_string());
-        sum += &pow / &fact;
-        switch ^= true;
-        println!("pow: {:?} fact: {:?}", pow.to_string(), fact.to_string());
-        println!("n: {:?} val: {:?}", n,  sum.to_string());
+
+    fn cos(self) -> Self::Output {
+        let mut x = &self % FiLong::pi();
+        if x > FiLong::pi_div_two() {
+            x -= FiLong::pi().value_of_sign(&self.sign);
+        }
+        let mut switch = true;
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&self).pow(2 * n);
+            let fact = lookup_fact(2 * n).value_of_sign(&switch);
+            sum += FiLong::ten() * &pow / &fact;
+            switch ^= true;
+        }
+        sum / FiLong::ten()
     }
-    sum
+
+    fn tan(self) -> Self::Output { // seperate implementation? + exception
+        let sin = (&self).sin();
+        let cos = (&self).cos();
+        if cos == FiLong::new() {
+            panic!("The tangent function is not defined for values where x % pi/2 = 0")
+        } else {
+            sin / cos
+        }
+    }
+
+    fn arcsin(self) -> Self::Output;
+
+    fn arccos(self) -> Self::Output;
+
+    fn arctan(self) -> Self::Output;
+
+    fn sinh(self) -> Self::Output {
+        let mut x = &self % FiLong::pi();
+        if x > FiLong::pi_div_two() {
+            x -= FiLong::pi().value_of_sign(&self.sign);
+        }
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&self).pow(2 * n + 1);
+            let fact = lookup_fact(2 * n + 1);
+            sum += FiLong::ten() * &pow / &fact;
+        }
+        sum / FiLong::ten()
+    }
+
+    fn cosh(self) -> Self::Output {
+        let mut x = &self % FiLong::pi();
+        if x > FiLong::pi_div_two() {
+            x -= FiLong::pi().value_of_sign(&self.sign);
+        }
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&self).pow(2 * n);
+            let fact = lookup_fact(2 * n);
+            sum += FiLong::ten() * &pow / &fact;
+        }
+        sum / FiLong::ten()
+    }
+
+    fn tanh(self) -> Self::Output {
+        let sinh = (&self).sinh();
+        let cosh = (&self).cosh();
+        if cosh == FiLong::new() {
+            panic!("The tangent function is not defined for values where x % pi/2 = 0")
+        } else {
+            sinh / cosh
+        }
+    }
+
+    fn arcsinh(self) -> Self::Output;
+
+    fn arccosh(self) -> Self::Output;
+
+    fn arctanh(self) -> Self::Output;
+
+    fn cot(self) -> Self::Output {
+        let sin = (&self).sin();
+        let cos = (&self).cos();
+        if sin == FiLong::new() {
+            panic!("The cotangent function is not defined for values where x % pi/2 = 0")
+        } else {
+            cos / sin
+        }
+    }
+
+    fn sec(self) -> Self::Output {
+        FiLong::one() / self.cos()
+    }
+
+    fn csc(self) -> Self::Output {
+        FiLong::one() / self.sin()
+    }
+
+    fn versin(self) -> Self::Output {
+        FiLong::one() - self.cos()
+    }
+
+    fn coversin(self) -> Self::Output {
+        FiLong::one() - self.sin()
+    }
+
+    fn vercos(self) -> Self::Output {
+        FiLong::one() + self.cos()
+    }
+
+    fn covercos(self) -> Self::Output {
+        FiLong::one() + self.sin()
+    }
+
+    fn exsec(self) -> Self::Output {
+        self.sec() - FiLong::one()
+    }
+
+    fn excsc(self) -> Self::Output {
+        self.csc() - FiLong::one()
+    }
 }

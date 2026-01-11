@@ -62,7 +62,7 @@ fn main() {
     println!("{:?}", FiLong::from("0.36787944117144232159552377016146"));
     println!("{:?}", FiLong::from("0.31830988618379067153776752674503"));
     println!("{:?}", n1.to_long() / n2.to_long());
-    println!("{:?}", cos(n1.to_long()).to_string());
+    println!("{:?}", cos(FiLong::pi_div_two()).to_string());
 }
 
 
