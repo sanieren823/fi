@@ -154,6 +154,12 @@ impl FiLong {
     }
 
     #[inline(always)]
+    pub fn bits(&self) -> u32 {
+        let len = self.spruce_up().len();
+        self[len - 1].ilog2() + 64u32 * (len as u32 - 1)
+    }
+
+    #[inline(always)]
     pub fn spruce_up(&self) -> Self {
         let mut output: Vec<u64> = self.value.clone();
         for el in self.value.iter().rev() {
@@ -497,6 +503,46 @@ impl FiLong {
     #[inline(always)]
     pub fn one_half() -> Self {
         FiLong{sign: false, value: vec![13106511852580896768, 2]}
+    }
+
+    #[inline(always)]
+    pub fn one_third() -> Self {
+        FiLong{sign: false, value: vec![14886589259623781717, 1]}
+    }
+
+    #[inline(always)]
+    pub fn one_quarter() -> Self {
+        FiLong{sign: false, value: vec![6553255926290448384, 1]}
+    }
+
+    #[inline(always)]
+    pub fn one_fifth() -> Self {
+        FiLong{sign: false, value: vec![1553255926290448384, 1]}
+    }
+
+    #[inline(always)]
+    pub fn one_eighth() -> Self {
+        FiLong{sign: false, value: vec![12500000000000000000]}
+    }
+
+    #[inline(always)]
+    pub fn sqrt2() -> Self {
+        FiLong{sign: false, value: vec![12294147721342643568, 7]}
+    }
+
+    #[inline(always)]
+    pub fn sqrt3() -> Self {
+        FiLong{sign: false, value: vec![7184384093501764809, 9]}
+    }
+
+        #[inline(always)]
+    pub fn sqrt5() -> Self {
+        FiLong{sign: false, value: vec![15532559262904483840, 10]}
+    }
+
+    #[inline(always)]
+    pub fn sqrt10() -> Self {
+        FiLong{sign: false, value: vec![2633116763775555728, 17]}
     }
 }
 

@@ -1,6 +1,5 @@
 use crate::fi::{FiBin, FiLong};
 use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg, Not};
-use std::time::Instant; // TODO: remove
 
 // TODO: decide whether the spruce_up() method should be called
 
@@ -258,7 +257,6 @@ fn bin_mul(num1: FiBin, num2: FiBin) -> FiBin {
 }
 
 fn bin_div(num1: FiBin, num2: FiBin) -> FiBin {
-    let time = Instant::now();
     let sign;
     if num1.sign == num2.sign {
         sign = false;
@@ -308,73 +306,6 @@ fn bin_rem(num1: FiBin, num2: FiBin) -> FiBin {
     r.sign = sign;
     r
 }
-
-
-pub fn time_comparison(num1: FiBin, num2: FiBin) {
-    let int_1 = num1.parse::<i128>().unwrap();
-    let int_2 = num2.clone().parse::<i128>().unwrap();
-    let long_1 = (num1.clone() / FiBin::decimals()).to_long();
-    let long_2 = (num2.clone() / FiBin::decimals()).to_long();
-    let mul = Instant::now();
-    let p: FiBin = bin_mul(num1.clone(), num2.clone()); // should probably test the gen function as they are the main functions
-    println!("FiBin: {:?}", mul.elapsed());
-    let mul_long = Instant::now();
-    let p_long: FiLong = long_mul(&long_1, &long_2);
-    println!("FiLong: {:?}", mul_long.elapsed());
-    println!("mul: {:?}", p_long);
-    let mul_int = Instant::now();
-    let p_int: i128= int_1 * int_2; // should probably test the gen function as they are the main functions
-    println!("i128: {:?}", mul_int.elapsed());
-    let div = Instant::now();
-    let q: FiBin = bin_div(p.clone(), num2.clone());
-    println!("FiBin: {:?}", div.elapsed());
-    let div_int = Instant::now();
-    let q_long: FiLong = p_long / long_2;
-    println!("FiLong: {:?}", div_int.elapsed());
-    let div_int = Instant::now();
-    let q_int: i128 = p_int / int_2;
-    println!("i128: {:?}", div_int.elapsed());
-    let val: FiBin = FiBin::from(u64::MAX);
-    let conv_int = Instant::now();
-    let conv: String = val.to_string();
-    println!("conv: {:?}", conv_int.elapsed());
-    let div = Instant::now();
-    p / q;
-    println!("div: {:?}", div.elapsed());
-    let vec: Vec<bool> = vec![true; 2];
-    let u8 = Instant::now();
-    let val = small_conv(vec);
-    println!("u8: {:?}", u8.elapsed());
-    println!("{:?}", val);
-    let num = u8::MAX;
-    let vec = Instant::now();
-    let val = small_reconv(num);
-    println!("reconv: {:?}", vec.elapsed());
-    println!("{:?}", val);
-}
-
-fn small_conv(vec: Vec<bool>) -> u8 {
-    let mut res: u8 = 0;
-    let lookup: [u8; 8] = [1, 2, 4, 8, 16, 32, 64, 128];
-    for i in 0..vec.len() {
-        if vec[i] {
-            res += lookup[i];
-        }
-    }
-    res
-}
-
-fn small_reconv(input: u8) -> Vec<bool> {
-    let mut num: u8 = input.clone();
-    let mut res: Vec<bool> = Vec::new();
-    while num > 1 {
-        res.push((num & 1) == 1);
-        num >>= 2;
-    }
-    res
-}
-
-
 
 impl Add<FiLong> for FiLong {
     type Output = FiLong;

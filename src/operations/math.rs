@@ -377,6 +377,9 @@ impl PowInteger<FiLong> for FiLong {
     type Output = FiLong;
 
     fn pow_int(self, num: FiLong) -> Self::Output {
+        if !num.is_integer() {
+            panic!("The pow_int() function requires the input to be an integer. Your input was: {:?}", num.to_string())
+        }
         let mut res: FiLong = FiLong::one();
         let mut counter = num.absolute();
         while counter >= FiLong::one() {
@@ -394,6 +397,9 @@ impl PowInteger<&FiLong> for FiLong {
     type Output = FiLong;
 
     fn pow_int(self, num: &FiLong) -> Self::Output {
+        if !num.is_integer() {
+            panic!("The pow_int() function requires the input to be an integer. Your input was: {:?}", num.to_string())
+        }
         let mut res: FiLong = FiLong::one();
         let mut counter = num.absolute();
         while counter >= FiLong::one() {
@@ -411,6 +417,9 @@ impl PowInteger<FiLong> for &FiLong {
     type Output = FiLong;
 
     fn pow_int(self, num: FiLong) -> Self::Output {
+        if !num.is_integer() {
+            panic!("The pow_int() function requires the input to be an integer. Your input was: {:?}", num.to_string())
+        }
         let mut res: FiLong = FiLong::one();
         let mut counter = num.absolute();
         while counter >= FiLong::one() {
@@ -428,6 +437,9 @@ impl PowInteger<&FiLong> for &FiLong {
     type Output = FiLong;
 
     fn pow_int(self, num: &FiLong) -> Self::Output {
+        if !num.is_integer() {
+            panic!("The pow_int() function requires the input to be an integer. Your input was: {:?}", num.to_string())
+        }
         let mut res: FiLong = FiLong::one();
         let mut counter = num.absolute();
         while counter >= FiLong::one() {
@@ -567,6 +579,14 @@ impl FiLong {
     pub fn log10(&self) -> FiLong {
         self.log2() * FiLong{sign: false, value: vec![11656255492688567905, 1]}
     }
+
+    fn squared(&self) -> FiLong {
+        self.pow_int(2)
+    }
+
+    fn cubed(&self) -> FiLong {
+        self.pow_int(3)
+    }
 }
 
 
@@ -594,6 +614,38 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
         } else {
             FiLong::new()
         }
+    }
+}
+
+
+
+impl Termial for FiLong {
+    type Output = FiLong;
+
+    fn term(self) -> Self::Output {
+        let mut sum = self.decimal_part();
+        let mut int_part = self.floor();
+        
+        while int_part >= FiLong::one() {
+            sum += &int_part;
+            int_part -= FiLong::one();
+        }
+        sum
+    }
+}
+
+impl Termial for &FiLong {
+    type Output = FiLong;
+
+    fn term(self) -> Self::Output {
+        let mut sum = self.decimal_part();
+        let mut int_part = self.floor();
+        
+        while int_part >= FiLong::one() {
+            sum += &int_part;
+            int_part -= FiLong::one();
+        }
+        sum
     }
 }
 
@@ -848,10 +900,31 @@ pow_for_int!(u128);
 
 impl Sqrt for FiLong {
     type Output = FiLong;
+
+    fn sqrt(self) -> Self::Output {
+        let mut guess = FiLong::one_eighth() * FiLong::two().pow_int(self.bits() / 2);
+        let mut prev = FiLong::new();
+        while guess != prev {
+            prev = guess.clone();
+            guess = &guess * (guess.squared() + FiLong::three() * &self) /  (FiLong::three() * guess.squared() + &self);
+        }
+        guess
+    }
 }
 
+impl Sqrt for &FiLong {
+    type Output = FiLong;
 
-
+    fn sqrt(self) -> Self::Output {
+        let mut guess = FiLong::one_eighth() * FiLong::two().pow_int(self.bits() / 2);
+        let mut prev = FiLong::new();
+        while guess != prev {
+            prev = guess.clone();
+            guess = &guess * (guess.squared() + FiLong::three() * self) /  (FiLong::three() * guess.squared() + self);
+        }
+        guess
+    }
+}
 
 impl Trigonometry for FiLong{
     type Output = FiLong;
@@ -988,11 +1061,11 @@ impl Trigonometry for FiLong{
 
 
     fn arcsinh(self) -> Self::Output {
-        (self + (self.pow_int(2u8) + FiLong::one()).sqrt()).ln()
+        (&self + ((&self).pow_int(2u8) + FiLong::one()).sqrt()).ln()
     }
 
     fn arccosh(self) -> Self::Output {
-        (self + (self.pow_int(2u8) - FiLong::one()).sqrt()).ln()
+        (&self + ((&self).pow_int(2u8) - FiLong::one()).sqrt()).ln()
     }
 
     fn arctanh(self) -> Self::Output {
