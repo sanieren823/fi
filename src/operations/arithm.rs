@@ -410,7 +410,7 @@ impl Add<&FiLong> for &FiLong {
         let sign1 = self.sign;
         let sign2 = num.sign;
         if sign1 == true && sign2 == true {
-            -long_add(self, num) 
+            long_add(self, num) 
         } else if sign1 && !sign2 {
             long_sub(num, self)
         } else if !sign1 && sign2 {
@@ -433,7 +433,7 @@ impl AddAssign<&FiLong> for FiLong {
         let sign1 = self.sign;
         let sign2 = other.sign;
         if sign1 == true && sign2 == true {
-            *self = -long_add(self, other);
+            *self = long_add(self, other);
         } else if sign1 && !sign2 {
             *self = long_sub(other, self);
         } else if !sign1 && sign2 {
@@ -475,7 +475,7 @@ impl Sub<&FiLong> for &FiLong {
         let sign1 = self.sign;
         let sign2 = !num.sign;
         if sign1 == true && sign2 == true {
-            -long_add(self, &-num)
+            long_add(self, &-num)
         } else if sign1 && !sign2 {
             long_sub(&-num, self)
         } else if !sign1 && sign2 {
@@ -498,7 +498,7 @@ impl SubAssign<&FiLong> for FiLong {
         let sign1 = self.sign;
         let sign2 = !other.sign;
         if sign1 == true && sign2 == true {
-            *self = -long_add(self, &-other);
+            *self = long_add(self, &-other);
         } else if sign1 && !sign2 {
             *self = long_sub(&-other, self);
         } else if !sign1 && sign2 {

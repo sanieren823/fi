@@ -882,19 +882,20 @@ pow_for_int!(u128);
 
 pub fn cos(num: FiLong) -> FiLong {
     let mut x = &num % FiLong::pi();
-        if x > FiLong::pi_div_two() {
-            x -= FiLong::pi().value_of_sign(&num.sign);
-        }
-        let mut switch = true;
-        let mut sum = FiLong::one();
-        println!("{:?}", sum);
-        for n in 1..20 {
-            let pow = (&num).pow(2 * n);
-            let fact = lookup_fact(2 * n).value_of_sign(&switch);
-            sum += &pow / &fact;
-            switch ^= true;
-            println!("pow: {:?} fact: {:?}", pow.to_string(), fact.to_string());
-            println!("n: {:?} val: {:?}", n,  ((&num).pow(2 * n) / lookup_fact(2 * n).value_of_sign(&switch)).to_string());
-        }
-        sum
+    if x > FiLong::pi_div_two() {
+        x -= FiLong::pi().value_of_sign(&num.sign);
+    }
+    let mut switch = true;
+    let mut sum = FiLong::one();
+    println!("{:?}", num.to_string());
+    for n in 1..20 {
+        let pow = (&num).pow(2 * n);
+        let fact = lookup_fact(2 * n).value_of_sign(&switch);
+        println!("n: {:?} val: {:?}", n,  (&pow / &fact).to_string());
+        sum += &pow / &fact;
+        switch ^= true;
+        println!("pow: {:?} fact: {:?}", pow.to_string(), fact.to_string());
+        println!("n: {:?} val: {:?}", n,  sum.to_string());
+    }
+    sum
 }
