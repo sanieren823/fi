@@ -464,7 +464,9 @@ impl Mul<&FiLong> for &FiLong {
 
     fn mul(self, num: &FiLong) -> Self::Output {
         let res = long_mul(self, num);
-        long_div(&res, &FiLong{sign: false, value: vec![7766279631452241920, 5]}).spruce_up()
+        let sqrt_10_pow_20 = FiLong{sign: false, value: vec![10000000000]};
+        let factor = single_limb_div(&res, &sqrt_10_pow_20).spruce_up();
+        single_limb_div(&factor, &sqrt_10_pow_20).spruce_up()
     }
 }
 
@@ -476,8 +478,10 @@ impl MulAssign<FiLong> for FiLong {
 
 impl MulAssign<&FiLong> for FiLong {
     fn mul_assign(&mut self, other: &FiLong) {
-        let res = long_mul(&self, other);
-        *self = long_div(&res, &FiLong{sign: false, value: vec![7766279631452241920, 5]}).spruce_up();
+        let res = long_mul(self, other);
+        let sqrt_10_pow_20 = FiLong{sign: false, value: vec![10000000000]};
+        let factor = single_limb_div(&res, &sqrt_10_pow_20).spruce_up();
+        *self = single_limb_div(&factor, &sqrt_10_pow_20).spruce_up();
     }
 }
 

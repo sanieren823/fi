@@ -1,11 +1,12 @@
 use crate::fi::{FiBin, FiLong};
 use crate::errors::FiError;
 use crate::errors::FiErrorKind;
+use core::f32;
 use std::any::TypeId;
 use std::mem::size_of;
 use std::process::Output;
 use crate::operations::arithm::Floor;
-use crate::operations::math::Pow;
+use crate::operations::math::PowInteger;
 
 
 
@@ -27,21 +28,9 @@ use crate::operations::math::Pow;
 //          fraction -= 1;
 //      }
 //  }
-trait F64 {}
 
-impl F64 for f64 {}
-
-trait F32 {}
-
-impl F32 for f64 {}
-
-
-trait Parse<Type> {
-    fn parse<Typ>(&self) -> Result<Type, FiError>;
-}
-
-impl Parse<f32> for FiLong {
-    fn parse<F32>(&self) -> Result<f32, FiError> {
+impl FiLong {
+    fn parse_f32(&self) -> Result<f32, FiError> {
         let sign : u32= self.sign as u32;
         let log = self.log2().floor();
         const NUM_BITS: u32 = 32;
@@ -63,7 +52,7 @@ impl Parse<f32> for FiLong {
         let mut fraction = if log == 0 { // div zero if log2().floor() == 0
             self - FiLong::one()
         } else {
-            (self / (FiLong::two().pow(log))) - FiLong::one()
+            (self / (FiLong::two().pow_int(log))) - FiLong::one()
         };
         let mut bits: u32 = 0;
         let size_significand = f32::MANTISSA_DIGITS - 1;
@@ -86,10 +75,8 @@ impl Parse<f32> for FiLong {
         let int = (sign << 31u32) | (exponent << (f32::MANTISSA_DIGITS - 1)) | bits;
         Ok(f32::from_bits(int))
     }
-}
 
-impl Parse<f64> for FiLong {
-    fn parse<F64>(&self) -> Result<f64, FiError> {
+    fn parse_f64(&self) -> Result<f64, FiError> {
         let sign : u64= self.sign as u64;
         let log: FiLong = self.log2().floor();
         const NUM_BITS: u32 = 64;
@@ -111,7 +98,7 @@ impl Parse<f64> for FiLong {
         let mut fraction = if log == 0 { // div zero if log2().floor() == 0
             self - FiLong::one()
         } else {
-            (self / (FiLong::two().pow(log))) - FiLong::one()
+            (self / (FiLong::two().pow_int(log))) - FiLong::one()
         };
         let mut bits: u64 = 0;
         let size_significand = f64::MANTISSA_DIGITS - 1;
@@ -135,3 +122,48 @@ impl Parse<f64> for FiLong {
         Ok(f64::from_bits(int))
     }
 }
+
+
+impl FiBin {
+    fn parse_f32(&self) -> Result<f32, FiError> {
+        self.to_long().parse_f32()
+    }
+
+    fn parse_f64(&self) -> Result<f64, FiError> {
+        self.to_long().parse_f64()
+    }
+}
+
+// impl From<f32> for FiLong {
+//     fn from(value: f32) -> Self {
+//         const BIAS: i32 = 127;
+//         let mut integer = value.to_bits();
+//         println!("{}", FiBin::from(integer) / FiBin::decimals());
+//         let sign = integer >> 31;
+//         integer &= 2u32.pow(31) - 1;
+//         println!("{}", FiBin::from(integer) / FiBin::decimals());
+//         let exponent: i32 = (integer >> (f32::MANTISSA_DIGITS - 1)) as i32 - BIAS;
+//         integer &= 2u32.pow(f32::MANTISSA_DIGITS - 1) - 1;
+//         println!("{}", FiBin::from(integer) / FiBin::decimals());
+//         let mut fraction = (integer << 9).reverse_bits(); // 9 = 1 (sign bit) + 8 (exponent bits)
+//         println!("{}", FiBin::from(fraction) / FiBin::decimals());
+//         println!("{:?}, {:?}, {:?}", sign, exponent, fraction);
+//         let mut num = FiLong::two().pow_int(exponent);
+//         num.sign = if sign == 0 {
+//             false
+//         } else {
+//             true
+//         };
+//         let mut fraction_bit = FiLong::one();
+//         let mut actual_fraction = FiLong::one();
+//         for _ in 0..23 {
+//             fraction_bit >>= 1;
+//             let cur_bit = fraction & 1;
+//             if cur_bit == 1 {
+//                 actual_fraction += &fraction_bit;
+//             }
+//             fraction >>= 1;
+//         }
+//         num * actual_fraction
+//     }
+// }
