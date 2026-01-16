@@ -26,9 +26,9 @@ use crate::operations::math::PowInteger;
 //  }
 
 impl FiLong {
-    fn parse_f32(&self) -> Result<f32, FiError> {
+    pub fn parse_f32(&self) -> Result<f32, FiError> {
         let sign : u32= self.sign as u32;
-        let log = self.log2().floor();
+        let log = self.absolute().log2().floor();
         const NUM_BITS: u32 = 32;
         const MAX: i32 = 127; // fomula 2^(32 - mantissa_digits - 1) - 1
         const MIN: i32 = -126; // fomula -(2^(32 - mantissa_digits - 1) - 2); why -2? the definition of IEEE 754 states that if all bits are 1 that the value must be either NaN or +/- infinity
@@ -72,9 +72,9 @@ impl FiLong {
         Ok(f32::from_bits(int))
     }
 
-    fn parse_f64(&self) -> Result<f64, FiError> {
+    pub fn parse_f64(&self) -> Result<f64, FiError> {
         let sign : u64= self.sign as u64;
-        let log: FiLong = self.log2().floor();
+        let log: FiLong = self.absolute().log2().floor();
         const NUM_BITS: u32 = 64;
         const MAX: i64 = 1023; // fomula 2^(32 - mantissa_digits - 1) - 1
         const MIN: i64 = -1022; // fomula -(2^(32 - mantissa_digits - 1) - 2); why -2? the definition of IEEE 754 states that if all bits are 1 that the value must be either NaN or +/- infinity
@@ -121,11 +121,11 @@ impl FiLong {
 
 
 impl FiBin {
-    fn parse_f32(&self) -> Result<f32, FiError> {
+    pub fn parse_f32(&self) -> Result<f32, FiError> {
         self.to_long().parse_f32()
     }
 
-    fn parse_f64(&self) -> Result<f64, FiError> {
+    pub fn parse_f64(&self) -> Result<f64, FiError> {
         self.to_long().parse_f64()
     }
 }
