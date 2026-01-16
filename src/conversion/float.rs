@@ -1,10 +1,6 @@
 use crate::fi::{FiBin, FiLong};
 use crate::errors::FiError;
 use crate::errors::FiErrorKind;
-use core::f32;
-use std::any::TypeId;
-use std::mem::size_of;
-use std::process::Output;
 use crate::operations::arithm::Floor;
 use crate::operations::math::PowInteger;
 
@@ -134,36 +130,96 @@ impl FiBin {
     }
 }
 
-// impl From<f32> for FiLong {
-//     fn from(value: f32) -> Self {
-//         const BIAS: i32 = 127;
-//         let mut integer = value.to_bits();
-//         println!("{}", FiBin::from(integer) / FiBin::decimals());
-//         let sign = integer >> 31;
-//         integer &= 2u32.pow(31) - 1;
-//         println!("{}", FiBin::from(integer) / FiBin::decimals());
-//         let exponent: i32 = (integer >> (f32::MANTISSA_DIGITS - 1)) as i32 - BIAS;
-//         integer &= 2u32.pow(f32::MANTISSA_DIGITS - 1) - 1;
-//         println!("{}", FiBin::from(integer) / FiBin::decimals());
-//         let mut fraction = (integer << 9).reverse_bits(); // 9 = 1 (sign bit) + 8 (exponent bits)
-//         println!("{}", FiBin::from(fraction) / FiBin::decimals());
-//         println!("{:?}, {:?}, {:?}", sign, exponent, fraction);
-//         let mut num = FiLong::two().pow_int(exponent);
-//         num.sign = if sign == 0 {
-//             false
-//         } else {
-//             true
-//         };
-//         let mut fraction_bit = FiLong::one();
-//         let mut actual_fraction = FiLong::one();
-//         for _ in 0..23 {
-//             fraction_bit >>= 1;
-//             let cur_bit = fraction & 1;
-//             if cur_bit == 1 {
-//                 actual_fraction += &fraction_bit;
-//             }
-//             fraction >>= 1;
-//         }
-//         num * actual_fraction
-//     }
-// }
+impl From<f32> for FiLong {
+    fn from(value: f32) -> Self {
+        const BIAS: i32 = 127;
+        const BIT_MINUS_ONE: u32 = 31;
+        let mut integer = value.to_bits();
+        let sign = integer >> BIT_MINUS_ONE;
+        integer &= 2u32.pow(BIT_MINUS_ONE) - 1;
+        let exponent: i32 = (integer >> (f32::MANTISSA_DIGITS - 1)) as i32 - BIAS;
+        integer &= 2u32.pow(f32::MANTISSA_DIGITS - 1) - 1;
+        // why string? as we know floats are represented by fractions that consist of a denominator of 2^-BIT; 
+        // this results in the floating-point errors we all know and hate; 
+        // this design aims to be as similar as possible to what a user might experience for normal number types
+        // a string represents exactly what a user sees and NOT how the number is stored
+        // e. g. 1.9 --> bit representation for f32: 1.8999997...; string: -> 1.9; float (print) -> 1.9
+        // while 1.9 is actually not 1.9 it's usually meant to be 1.9
+        // since switching between floating-point representation and fixed-point representation is not indended the input is what's displayed to the user
+        // why isn't just a stringconversion then for the whole number?
+        // the string to FiLong conversion takes longer for larger absolute values
+        // by providing only values between 1 and 2 the cost is fixed 
+        let string = f32::from_bits(integer | ((BIAS as u32) << (f32::MANTISSA_DIGITS - 1))).to_string(); 
+        let mut num = FiLong::two().pow_int(exponent);
+        num.sign = if sign == 0 {
+            false
+        } else {
+            true
+        };
+        num * FiLong::from(string)
+    }
+}
+
+impl From<f32> for FiBin {
+    fn from(value: f32) -> Self {
+        const BIAS: i32 = 127;
+        const BIT_MINUS_ONE: u32 = 31;
+        let mut integer = value.to_bits();
+        let sign = integer >> BIT_MINUS_ONE;
+        integer &= 2u32.pow(BIT_MINUS_ONE) - 1;
+        let exponent: i32 = (integer >> (f32::MANTISSA_DIGITS - 1)) as i32 - BIAS;
+        integer &= 2u32.pow(f32::MANTISSA_DIGITS - 1) - 1;
+        // why string? --> explanation from<f32> for FiLong
+        let string = f32::from_bits(integer | ((BIAS as u32) << (f32::MANTISSA_DIGITS - 1))).to_string(); 
+        let mut num = FiLong::two().pow_int(exponent).to_bin();
+        num.sign = if sign == 0 {
+            false
+        } else {
+            true
+        };
+        num * FiBin::from(string)
+    }
+}
+
+
+impl From<f64> for FiLong {
+    fn from(value: f64) -> Self {
+        const BIAS: i64 = 1023;
+        const BIT_MINUS_ONE: u32 = 63;
+        let mut integer = value.to_bits();
+        let sign = integer >> BIT_MINUS_ONE;
+        integer &= 2u64.pow(BIT_MINUS_ONE) - 1;
+        let exponent: i64 = (integer >> (f64::MANTISSA_DIGITS - 1)) as i64 - BIAS;
+        integer &= 2u64.pow(f64::MANTISSA_DIGITS - 1) - 1;
+        // why string? --> explanation from<f32> for FiLong
+        let string = f64::from_bits(integer | ((BIAS as u64) << (f64::MANTISSA_DIGITS - 1))).to_string(); 
+        let mut num = FiLong::two().pow_int(exponent);
+        num.sign = if sign == 0 {
+            false
+        } else {
+            true
+        };
+        num * FiLong::from(string)
+    }
+}
+
+impl From<f64> for FiBin {
+    fn from(value: f64) -> Self {
+        const BIAS: i64 = 1023;
+        const BIT_MINUS_ONE: u32 = 63;
+        let mut integer = value.to_bits();
+        let sign = integer >> BIT_MINUS_ONE;
+        integer &= 2u64.pow(BIT_MINUS_ONE) - 1;
+        let exponent: i64 = (integer >> (f64::MANTISSA_DIGITS - 1)) as i64 - BIAS;
+        integer &= 2u64.pow(f64::MANTISSA_DIGITS - 1) - 1;
+        // why string? --> explanation from<f32> for FiLong
+        let string = f64::from_bits(integer | ((BIAS as u64) << (f64::MANTISSA_DIGITS - 1))).to_string(); 
+        let mut num = FiLong::two().pow_int(exponent).to_bin();
+        num.sign = if sign == 0 {
+            false
+        } else {
+            true
+        };
+        num * FiBin::from(string)
+    }
+}

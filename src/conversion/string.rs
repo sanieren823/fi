@@ -40,7 +40,7 @@ impl FiBin {
         if len > 20 + base {
             string.insert(len - 20, '.');
         } else {
-            for _num in 0..=20-len {
+            for _num in 0..=20+base-len {
                 string.insert(0 + base, '0');
             }
             string.insert(1 + base, '.');

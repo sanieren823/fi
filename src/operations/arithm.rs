@@ -1315,6 +1315,9 @@ pub fn single_limb_div(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
         return num1.clone();
     }
     let len = num1.len();
+    if len == 0 {
+        return FiLong::new();
+    }
     let mut res = FiLong{sign: sign, value: Vec::with_capacity(len)};
     res.value.resize(len, 0);
     let mut carry: u128 = num1[len - 1] as u128;
