@@ -38,7 +38,7 @@ pub trait Parsing {
     
 }
 
-// Implemented in LE as you would read it unlike the vector representation
+// Implemented in LE as you would read it 
 impl fmt::Display for FiBin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut string: String = String::new();

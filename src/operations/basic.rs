@@ -139,6 +139,16 @@ impl FiLong {
     }
 
     #[inline(always)]
+    pub fn with_capacity(capacity: usize) -> Self {
+        FiLong{sign: false, value: Vec::with_capacity(capacity)}
+    }
+
+    #[inline(always)]
+    pub fn resize(&mut self, new_len: usize, value: u64) {
+        self.value.resize(new_len, value);
+    }
+
+    #[inline(always)]
     pub fn abs(self) -> Self {
         FiLong{sign: false, value: self.value}
     }

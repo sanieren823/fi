@@ -514,9 +514,17 @@ impl Div<&FiLong> for &FiLong {
 
     fn div(self, num: &FiLong) -> Self::Output {
         let dividend = long_mul(&self, &FiLong{sign: false, value: vec![7766279631452241920, 5]});
-        long_div(&dividend, &num).spruce_up()
+        if num.absolute() > dividend.absolute() {
+            return FiLong::new();
+        }
+        match num.len() {
+            0 => panic!("You cannot divide by 0 in any cases."),
+            1 => single_limb_div(&dividend, &num).spruce_up(),
+            _=> algorithm_d_div(&dividend, &num).spruce_up(),
+        }
     }
 }
+
 
 impl DivAssign<FiLong> for FiLong {
     fn div_assign(&mut self, other: Self) {
@@ -670,7 +678,7 @@ fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
     let num2 = num2.spruce_up();
     let len = num1.len() + num2.len(); 
     let mut result: FiLong = FiLong{sign: num1.sign ^ num2.sign, value: Vec::with_capacity(len)}; 
-    result.value.resize(len, 0);
+    result.resize(len, 0);
     for i in 0..num1.len() { // somewhat standard multiplication
         let mut carry: u128 = 0;
         for j in 0..num2.len() {
@@ -1319,7 +1327,7 @@ pub fn single_limb_div(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
         return FiLong::new();
     }
     let mut res = FiLong{sign: sign, value: Vec::with_capacity(len)};
-    res.value.resize(len, 0);
+    res.resize(len, 0);
     let mut carry: u128 = num1[len - 1] as u128;
     for i in (0..len - 1).rev() {
         let num = carry * 2u128.pow(64) + num1[i] as u128;
@@ -1352,45 +1360,121 @@ pub fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
     FiLong{sign: sign, value: vec![carry as u64]}
 }
 
-// pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong { 
-//     let sign = num1.sign ^ num2.sign;
-//     let n = num2.len();
-//     let m = num1.len() - n;
-//     let b: u128 = u64::MAX as u128 + 1;
-//     let d = u64::MAX / num2[n - 1];
-//     let mut u: Vec<u128> = Vec::with_capacity(m + n);
-//     let mut v: Vec<u128> = Vec::with_capacity(n);
-//     for el in num1.value.iter() {
-//         u.push(*el as u128 * d as u128);
-//     }
-//     for el in num2.value.iter() {
-//         v.push(*el as u128 * d as u128);
-//     }
-    
-//     let mut q_low: u128;
-//     let mut r_low: u128;
-//     let mut q_high: u128;
-//     let mut r_high: u128;
-//     for j in (0..=m).rev() {
-//         q = (u[n + j] as u128 * 2u128.pow(64) + u[n - 1 + j] as u128) / v[n - 1] as u128;
-//         r = (u[n + j] as u128 * 2u128.pow(64) + u[n - 1 + j] as u128) % v[n - 1] as u128;
-//         loop {
-//             let mid = high_bits(q) * v[n - 2] as u128;
-//             let low = low_bits(q) * v[n - 2] as u128 + low_bits(mid);
-//             let high = high_bits(mid);
-//             if (q >= b) || low > (r * b + u[n - 2 + j] as u128) || high != 0 { // if clause
-//                 q -= 1;
-                
-//                 r += v[n - 1] as u128;
-//                 if r > b {
-//                     break;
-//                 }
-//             } else {
-//                 break;
-//             }
-//         }
-        
-//     }
+pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong { 
+    // important length constants
+    let n = num2.len();
+    let m = num1.len() - n;
 
-//     FiLong::new()
-// }
+    // result handeling
+    let sign = num1.sign ^ num2.sign;
+    let mut res = FiLong::with_capacity(m);
+    res.sign = sign;
+    res.resize(m + 1, 0);
+    
+    let b: u128 = u64::MAX as u128 + 1;
+    let s = num2[n - 1].leading_zeros();
+    let mut v: Vec<u64> = Vec::with_capacity(n);
+    for i in 0..n {
+        let high_bits = num2.value[i] << s;
+        let low_bits = if i > 0 {
+            num2.value[i - 1] >> (64 - s)
+        } else {
+            0
+        };
+        v.push(high_bits | low_bits);
+    }
+    let mut u: Vec<u64> = Vec::with_capacity(m + n + 1);
+    for i in 0..num1.len() {
+        let high_bits = num1.value[i] << s;
+        let low_bits = if i > 0 {
+            num1.value[i - 1] >> (64 - s)
+        } else {
+            0
+        };
+        u.push(high_bits | low_bits);
+    }
+    u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+    let mut q: u128;
+    let mut r: u128;
+    for j in (0..=m).rev() {
+        // println!("u: {:?}", u);
+        // println!("v: {:?}", v);
+        q = (u[n + j] as u128 * b + u[n + j - 1] as u128) / v[n - 1] as u128; 
+        r = (u[n + j] as u128 * b + u[n + j - 1] as u128) % v[n - 1] as u128;
+        // println!("q: {:?}", q);
+        // println!("{:?}", u[n + j] as u128 * b + u[n + j - 1] as u128);
+        // println!("{:?}", u[n + j] as u128 * b);
+        // println!("{:?}", u[n + j - 1] as u128);
+        // println!("r: {:?}", r);
+        loop {
+            // let mid = high_bits(q) * v[n - 2] as u128;
+            // let low = low_bits(q) * v[n - 2] as u128;
+            // let temp = high_bits(low) + low_bits(mid);
+            // let high = high_bits(mid) + high_bits(temp);
+            // let low = low_bits(low) + low_bits(temp) * b;
+            // println!("low: {:?}", low);
+            // println!("{:?}", (r * b + u[n + j - 2] as u128));
+            // println!("{:?}", high);
+            // println!("{:?}", q * v[n - 2] as u128);
+            if (q >= b) || q * v[n - 2] as u128 > (r * b + u[n + j - 2] as u128) { // the c implementation shows a >= for the first clause
+                q -= 1;
+                
+                r += v[n - 1] as u128;
+                if r > b {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        let mut product = v.clone();
+        multiply(&mut product, q, 0);
+        // if q_high > 0 {
+        //     multiply(&mut product, q_high, 1);
+        // }
+        if compare(&u, &product, j, n) {
+            q -= 1;
+            product = v.clone();
+            multiply(&mut product, q, 0);
+        }
+        res[j] = q as u64;
+        let mut borrow: u64 = 0;
+        for i in 0..=n {
+            let ui = u[i + j] as u128;
+            let pi = product[i] as u128 + borrow as u128;
+            if ui >= pi {
+                u[i + j] = (ui - pi) as u64;
+                borrow = 0;
+            } else {
+                u[i + j] = ((ui + b) - pi) as u64;
+                borrow = 1;
+            }
+        }
+        // res[j] = q;
+    }
+
+    res
+}
+
+
+fn multiply(vec: &mut Vec<u64>, factor: u128, start: usize) {
+    let mut carry: u128 = 0;
+    for i in start..vec.len() {
+        let double_long = vec[i] as u128 * factor + carry;
+        vec[i] = low_bits(double_long) as u64;
+        carry = high_bits(double_long);
+    }
+    vec.push(carry as u64);
+}
+
+
+fn compare(val1: &Vec<u64>, val2: &Vec<u64>, summand: usize, n: usize) -> bool {
+    for i in (0..=n).rev() {
+        if val2[i] > val1[i + summand] {
+            return true;
+        } else if val2[i] < val1[i + summand] {
+            return false;
+        }
+    }
+    false
+}
