@@ -1,4 +1,4 @@
-# Fi
+# finum
 
 Most decimal numbers get represented by floating-point numbers. Floats usually create floating-point errors, which are quite annoying when you need the exact value. Therefore this type uses **fixed-point integers**. 
 
