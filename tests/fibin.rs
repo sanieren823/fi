@@ -1,7 +1,7 @@
 
 #[cfg(test)]
 mod tests {
-    use fi::fi::FiBin;
+    use finum::finum::FiBin;
     #[test]
     fn create_new() {
         assert_eq!(FiBin::new(), FiBin{sign: false, value: Vec::new()});

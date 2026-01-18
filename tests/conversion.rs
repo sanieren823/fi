@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use fi::fi::{FiLong, FiBin};
+    use finum::finum::{FiLong, FiBin};
     #[test]
     fn string() {
         assert_eq!(FiLong::neg_four(), FiLong::from("-4"));

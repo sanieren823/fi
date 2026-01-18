@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use fi::fi::FiLong;
-    use fi::operations::arithm::*;
+    use finum::finum::FiLong;
+    use finum::operations::arithm::*;
     #[test]
     fn add() {
         assert_eq!(FiLong::four() + &FiLong::two(), FiLong::six());

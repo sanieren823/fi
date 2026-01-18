@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use fi::fi::FiLong;
+    use finum::finum::FiLong;
     #[test]
     fn and() {
         assert_eq!((FiLong{sign: false, value: vec![40]} & &FiLong::new()).spruce_up(), FiLong::new());
