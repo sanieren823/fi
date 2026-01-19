@@ -573,6 +573,9 @@ impl Rem<&FiLong> for &FiLong {
     type Output = FiLong;
 
     fn rem(self, num: &FiLong) -> Self::Output {
+        if self.len() < 2 && num.len() > 1 {
+            return FiLong::new();
+        }
         match num.len() {
             0 => self.clone(),
             1 => single_limb_rem(&self, &num).spruce_up(),
@@ -589,11 +592,16 @@ impl RemAssign<FiLong> for FiLong {
 
 impl RemAssign<&FiLong> for FiLong {
     fn rem_assign(&mut self, other: &FiLong) {
-        *self = match other.len() {
-            0 => self.clone(),
-            1 => single_limb_rem(&self, &other).spruce_up(),
-            _=> algorithm_d_rem(&self, &other).spruce_up(),
+        if self.len() < 2 && other.len() > 1 {
+            *self = FiLong::new();
+        } else {
+            *self = match other.len() {
+                0 => self.clone(),
+                1 => single_limb_rem(&self, &other).spruce_up(),
+                _=> algorithm_d_rem(&self, &other).spruce_up(),
+            }
         }
+        
     }
 }
 

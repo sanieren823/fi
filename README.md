@@ -9,7 +9,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fi = "0.1.0"
+fi = "0.3.0"
 ```
 
 ## Precision
@@ -26,7 +26,7 @@ This Table shows how precise each Operation is:
 |Division                                 | 20 digits                                           |
 |Logarithm                                | 20 digits                                           |
 |Exponentiation (exponent is an integer)  | 20 digits                                           |
-|Exponentiation (all cases)               | ~16-17 digits                                       |
-|Nth Root                                 | ~16-17 digits                                       |
+|Exponentiation (all cases)               | ~20 digits                                          |
+|Nth Root                                 | ~20 digits                                          |
 |Factorial & Termial                      | ~15 digits                                          |
 |Trigonometry                             | 20 digits                                           |

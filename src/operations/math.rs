@@ -296,7 +296,7 @@ pub trait Trigonometry {
 //     Ok(res)
 // }
 
-fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError>{
+fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError> {
     let mut shifted;
     let mut res: FiLong = FiLong::new();
     let mut sign = false;
@@ -313,14 +313,35 @@ fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError>{
         res += 1;
     }
     // println!("{:?}", (decimals_log_2_long(&shifted, &FiLong::hundred()) + res.clone() * FiLong::hundred()).to_bin().to_string());
-    res += decimals_log_2_long(&shifted, &FiLong::hundred()) * FiLong::hundredth(); // this adds precision; from what i measured 100 is usually enough
+    res += decimals_log_2_long(&shifted, &FiLong::hundred()) / FiLong::hundred(); // this adds precision; from what i measured 100 is usually enough
     res.sign = sign;
-    // println!("{:?}", res.to_bin().to_string());
     Ok(res)
 }
 
-fn decimals_log_2_long(num: &FiLong, factor: &FiLong) -> FiLong{// input must be the residue --> between 1 and 2
-    
+fn fl_log_2_long_hundred_x(num: &FiLong) -> Result<FiLong, FiError> { // solely used for the implementation of the PowerReal trait
+    let mut shifted;
+    let mut res: FiLong = FiLong::new();
+    let mut sign = false;
+    if num.sign {
+        return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "Mind that the logarithmic function doesn't implement negative numbers."));
+    } else if *num < FiLong::one() {
+        shifted = FiLong::one() / num;
+        sign = true;
+    } else {
+        shifted = num.clone();
+    }
+    while shifted >= FiLong::two() {
+        shifted >>= 1;
+        res += 1;
+    }
+    res *= FiLong::hundred();
+    // println!("{:?}", (decimals_log_2_long(&shifted, &FiLong::hundred()) + res.clone() * FiLong::hundred()).to_bin().to_string());
+    res += decimals_log_2_long(&shifted, &FiLong::hundred()); // this adds precision; from what i measured 100 is usually enough
+    res.sign = sign;
+    Ok(res)
+}
+
+fn decimals_log_2_long(num: &FiLong, factor: &FiLong) -> FiLong{ // input must be the residue --> between 1 and 2 
     if *num == FiLong::one() {
         return FiLong::new();
     }
@@ -331,9 +352,11 @@ fn decimals_log_2_long(num: &FiLong, factor: &FiLong) -> FiLong{// input must be
         z = &z * &z;
         m += 1;
     }
-    let inverse: FiLong = (FiLong::one() >> m) * factor;
+    let inverse: FiLong = factor >> m;
     if !inverse.is_zero() {
         res = &inverse + decimals_log_2_long(&(z >> 1), &inverse);
+    } else if 2u64.pow(m as u32) <= factor[0] * 2 {
+        res = FiLong::smallest_val();
     }
     res
 }
@@ -546,11 +569,11 @@ impl FiLong {
     }
 
     fn squared(&self) -> FiLong {
-        self.pow_int(2)
+        self * self
     }
 
     fn cubed(&self) -> FiLong {
-        self.pow_int(3)
+        self * self * self
     }
 }
 
@@ -657,7 +680,7 @@ fn coef(k: usize, g: usize) -> FiLong {
     let base = FiLong::from(g).exp() * epsilon(k) * FiLong::neg_one().pow_int(k) / FiLong{sign: false, value: vec![10855154504875879234, 13]};
     let mut sum = FiLong::new();
     for r in 0..=k {
-        sum += FiLong::neg_one().pow_int(r) * (FiLong::from(k).fact() / (FiLong::from(k - r).fact() * FiLong::from(r).fact())) * k_loop(r, FiLong::from(k)) * (FiLong::e() * FiLong::million() / (r + g + FiLong::one_half())).pow(r + FiLong::one_half()) / (FiLong::million()).pow(r + FiLong::one_half());
+        sum += FiLong::neg_one().pow_int(r) * (FiLong::from(k).fact() / (FiLong::from(k - r).fact() * FiLong::from(r).fact())) * k_loop(r, FiLong::from(k)) * (FiLong::e() * FiLong::ten() / (r + g + FiLong::one_half())).pow(r + FiLong::one_half()) / (FiLong::ten()).pow(r + FiLong::one_half());
         println!("fact: {:?}", (FiLong::from(k).fact() / (FiLong::from(k - r).fact() * FiLong::from(r).fact())));
         println!("k: {:?}", k_loop(r, FiLong::from(k)));
         println!("pow: {:?}", (FiLong::e() / (r + g + FiLong::one_half())).pow(r + FiLong::one_half()));
@@ -750,11 +773,12 @@ impl PowerOfTwo for FiLong{// fix the floor function
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
         }
-        let mut sum = FiLong::ten() + &decimals * FiLong::ln2() * FiLong::ten();
-        for i in 2..16 {
-            sum += FiLong::ten() * (&decimals).pow_int(i) * lookup_ln_two(i) / lookup_fact(i);
+        let mut sum = FiLong::hundred() + &decimals * FiLong{sign: false, value: vec![13942777958371238172, 375]}; // the last factor is equal to 100 * ln(2)
+        for i in 2..20 {
+            sum += FiLong::hundred() * (&decimals).pow_int(i) * lookup_ln_two(i) / lookup_fact(i);
         }
-        sum * FiLong::two().pow_int(int_part) / FiLong::ten()
+        // println!("{:?}, {:?}", sum.to_string(), FiLong::two().pow_int(&int_part).to_string());
+        sum * FiLong::two().pow_int(int_part) / FiLong::hundred()
     }
 }
 
@@ -767,13 +791,12 @@ impl PowerOfTwo for &FiLong {
         if decimals.absolute() > FiLong::one_half() {
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
-            
         }
-        let mut sum = FiLong::ten() + &decimals * FiLong::ln2() * FiLong::ten();
+        let mut sum = FiLong::hundred() + &decimals * FiLong{sign: false, value: vec![13942777958371238172, 375]}; // the last factor is equal to 100 * ln(2)
         for i in 2..16 {
-            sum += FiLong::ten() * (&decimals).pow_int(i) * lookup_ln_two(i) / lookup_fact(i);
+            sum += FiLong::hundred() * (&decimals).pow_int(i) * FiLong::ln2().pow_int(i) / lookup_fact(i);
         }
-        sum * FiLong::two().pow_int(int_part) / FiLong::ten()
+        sum * FiLong::two().pow_int(int_part) / FiLong::hundred()
     }
 }
 
@@ -781,7 +804,10 @@ impl PowReal<FiLong> for FiLong{// lower precision only around 17digits
     type Output = FiLong;
 
     fn pow_r(self, rhs: FiLong) -> Self::Output {
-        let exponent = rhs * self.log2();
+        let exponent = rhs * match fl_log_2_long_hundred_x(&self) {
+            Ok(val) => val,
+            Err(e) => panic!("{}", e.msg()),
+        } / FiLong::hundred();
         exponent.pot()
     }
 }
@@ -790,7 +816,10 @@ impl PowReal<&FiLong> for FiLong {
     type Output = FiLong;
 
     fn pow_r(self, rhs: &FiLong) -> Self::Output {
-        let exponent = rhs * self.log2();
+        let exponent = rhs * match fl_log_2_long_hundred_x(&self) {
+            Ok(val) => val,
+            Err(e) => panic!("{}", e.msg()),
+        } / FiLong::hundred();
         exponent.pot()
     }
 }
@@ -799,7 +828,10 @@ impl PowReal<FiLong> for &FiLong {
     type Output = FiLong;
 
     fn pow_r(self, rhs: FiLong) -> Self::Output {
-        let exponent = rhs * self.log2();
+        let exponent = rhs * match fl_log_2_long_hundred_x(&self) {
+            Ok(val) => val,
+            Err(e) => panic!("{}", e.msg()),
+        } / FiLong::hundred();
         exponent.pot()
     }
 }
@@ -808,7 +840,10 @@ impl PowReal<&FiLong> for &FiLong {
     type Output = FiLong;
 
     fn pow_r(self, rhs: &FiLong) -> Self::Output {
-        let exponent = rhs * self.log2();
+        let exponent = rhs * match fl_log_2_long_hundred_x(&self) {
+            Ok(val) => val,
+            Err(e) => panic!("{}", e.msg()),
+        } / FiLong::hundred();
         exponent.pot()
     }
 }
@@ -1003,7 +1038,7 @@ impl Sqrt for &FiLong {
     }
 }
 
-impl Trigonometry for FiLong{
+impl Trigonometry for FiLong {
     type Output = FiLong;
 
     fn sin(self) -> Self::Output {
@@ -1216,7 +1251,7 @@ impl Trigonometry for FiLong{
     }
 }
 
-impl Trigonometry for &FiLong{
+impl Trigonometry for &FiLong {
     type Output = FiLong;
 
     fn sin(self) -> Self::Output {
