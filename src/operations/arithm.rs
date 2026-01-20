@@ -1371,11 +1371,13 @@ fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     res.resize(m + 1, 0);
     
     // initial multiplication
-    let s = num2[n - 1].leading_zeros();
+    let s: u32 = num2[n - 1].leading_zeros();
+    
     let mut v: Vec<u64> = Vec::with_capacity(n);
     for i in 0..n {
+        
         let high_bits = num2.value[i] << s;
-        let low_bits = if i > 0 {
+        let low_bits = if i > 0 && s != 0 {
             num2.value[i - 1] >> (64 - s)
         } else {
             0
@@ -1385,14 +1387,19 @@ fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut u: Vec<u64> = Vec::with_capacity(m + n + 1);
     for i in 0..num1.len() {
         let high_bits = num1.value[i] << s;
-        let low_bits = if i > 0 {
+        let low_bits = if i > 0 && s != 0 {
             num1.value[i - 1] >> (64 - s)
         } else {
             0
         };
         u.push(high_bits | low_bits);
     }
-    u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+    if s == 0 {
+        u.push(0)
+    } else {
+        u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+    }
+
 
     let mut q: u128;
     let mut r: u128;
@@ -1438,8 +1445,9 @@ fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     rem.resize(u.len(), 0);
     for i in (0..u.len()).rev() {
         rem[i] |= u[i] >> s;
-        if i > 0 {
+        if i > 0 && s != 0{
             rem[i - 1] |= u[i] << (64 - s);
+
         }
     }
     
@@ -1464,11 +1472,13 @@ fn algorithm_d_floor(num1: &FiLong, num2: &FiLong) -> FiLong {
     res.resize(m + 1, 0);
     
     // initial multiplication
-    let s = num2[n - 1].leading_zeros();
+    let s: u32 = num2[n - 1].leading_zeros();
+    
     let mut v: Vec<u64> = Vec::with_capacity(n);
     for i in 0..n {
+        
         let high_bits = num2.value[i] << s;
-        let low_bits = if i > 0 {
+        let low_bits = if i > 0 && s != 0 {
             num2.value[i - 1] >> (64 - s)
         } else {
             0
@@ -1478,14 +1488,18 @@ fn algorithm_d_floor(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut u: Vec<u64> = Vec::with_capacity(m + n + 1);
     for i in 0..num1.len() {
         let high_bits = num1.value[i] << s;
-        let low_bits = if i > 0 {
+        let low_bits = if i > 0 && s != 0 {
             num1.value[i - 1] >> (64 - s)
         } else {
             0
         };
         u.push(high_bits | low_bits);
     }
-    u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+    if s == 0 {
+        u.push(0)
+    } else {
+        u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+    } 
 
     let mut q: u128;
     let mut r: u128;
@@ -1543,11 +1557,13 @@ fn algorithm_d_ceil(num1: &FiLong, num2: &FiLong) -> FiLong {
     res.resize(m + 1, 0);
     
     // initial multiplication
-    let s = num2[n - 1].leading_zeros();
+    let s: u32 = num2[n - 1].leading_zeros();
+    
     let mut v: Vec<u64> = Vec::with_capacity(n);
     for i in 0..n {
+        
         let high_bits = num2.value[i] << s;
-        let low_bits = if i > 0 {
+        let low_bits = if i > 0 && s != 0 {
             num2.value[i - 1] >> (64 - s)
         } else {
             0
@@ -1557,14 +1573,18 @@ fn algorithm_d_ceil(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut u: Vec<u64> = Vec::with_capacity(m + n + 1);
     for i in 0..num1.len() {
         let high_bits = num1.value[i] << s;
-        let low_bits = if i > 0 {
+        let low_bits = if i > 0 && s != 0 {
             num1.value[i - 1] >> (64 - s)
         } else {
             0
         };
         u.push(high_bits | low_bits);
     }
-    u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+    if s == 0 {
+        u.push(0)
+    } else {
+        u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+    }
 
     let mut q: u128;
     let mut r: u128;
@@ -1610,7 +1630,7 @@ fn algorithm_d_ceil(num1: &FiLong, num2: &FiLong) -> FiLong {
     rem.resize(u.len(), 0);
     for i in (0..u.len()).rev() {
         rem[i] |= u[i] >> s;
-        if i > 0 {
+        if i > 0  && s != 0 {
             rem[i - 1] |= u[i] << (64 - s);
         }
     }
@@ -1635,7 +1655,7 @@ fn algorithm_d_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut v: Vec<u64> = Vec::with_capacity(n);
     for i in 0..n {
         let high_bits = num2.value[i] << s;
-        let low_bits = if i > 0 {
+        let low_bits = if i > 0 && s != 0 {
             num2.value[i - 1] >> (64 - s)
         } else {
             0
@@ -1645,14 +1665,19 @@ fn algorithm_d_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut u: Vec<u64> = Vec::with_capacity(m + n + 1);
     for i in 0..num1.len() {
         let high_bits = num1.value[i] << s;
-        let low_bits = if i > 0 {
+        let low_bits = if i > 0 && s != 0 {
             num1.value[i - 1] >> (64 - s)
         } else {
             0
         };
         u.push(high_bits | low_bits);
+    } 
+    if s == 0  {
+        u.push(0);
+    } else {
+        u.push(num1.value[num1.len() - 1] >> (64 - s)); 
     }
-    u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+
 
     let mut q: u128;
     let mut r: u128;
@@ -1699,7 +1724,7 @@ fn algorithm_d_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
     result.resize(u.len(), 0);
     for i in (0..u.len()).rev() {
         result[i] |= u[i] >> s;
-        if i > 0 {
+        if i > 0 && s != 0 {
             result[i - 1] |= u[i] << (64 - s);
         }
     }

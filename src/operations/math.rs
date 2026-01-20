@@ -670,24 +670,30 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
 
 fn sum_coef(z: FiLong, g: usize) -> FiLong { // TODO: the coefficients should obviously be hardcoded values; during the process of fixing this it will remain unusable (due to speed)
     let mut res = FiLong::new();
+    let mut switch = FiLong::one();
     for k in 0..9 {
-        res += &coef(k, g) * FiLong::neg_one().pow_int(k) * k_loop(k, -(&z)) / k_loop(k, &z + 1); // try 10x/100x
+        res += &coef(k, g) * &switch * k_loop(k, -(&z)) / k_loop(k, &z + 1); // try 10x/100x
+        switch.sign ^= true;
     }
     res
 }
 
 fn coef(k: usize, g: usize) -> FiLong {
-    let base = FiLong::from(g).exp() * epsilon(k) * FiLong::neg_one().pow_int(k) / FiLong{sign: false, value: vec![10855154504875879234, 13]};
+    let temp = FiLong::from("25066282746.31000502415765284811");
+    let base = FiLong::from(g + FiLong::decimals().ln()).exp() * epsilon(k) * FiLong::neg_one().pow_int(k) / temp; // new formula e^g+x {x = ln(10^20)} * epsilon * -1^k * 2pi.sqrt(precision 30)  
     let mut sum = FiLong::new();
+    let mut switch = FiLong::one();
     for r in 0..=k {
-        sum += FiLong::neg_one().pow_int(r) * (FiLong::from(k).fact() / (FiLong::from(k - r).fact() * FiLong::from(r).fact())) * k_loop(r, FiLong::from(k)) * (FiLong::e() * FiLong::ten() / (r + g + FiLong::one_half())).pow(r + FiLong::one_half()) / (FiLong::ten()).pow(r + FiLong::one_half());
-        println!("fact: {:?}", (FiLong::from(k).fact() / (FiLong::from(k - r).fact() * FiLong::from(r).fact())));
-        println!("k: {:?}", k_loop(r, FiLong::from(k)));
-        println!("pow: {:?}", (FiLong::e() / (r + g + FiLong::one_half())).pow(r + FiLong::one_half()));
-        println!("-1: {:?}", FiLong::neg_one().pow_int(r));
+        // new formula: switch * combination * k_loop * (e * 10^(10 / r+0.5) / (r + g + 0.5))^r+0.5
+        sum += &switch * combinations(k, r) * k_loop(r, FiLong::from(k)) * (FiLong::e() * FiLong::ten().pow(FiLong::ten() / (FiLong::from(r) + FiLong::one_half())) / (r + g + FiLong::one_half())).pow(r + FiLong::one_half()); // / (FiLong::hundred()).pow(r + FiLong::one_half());
+        // println!("fact: {:?}", (FiLong::from(k).fact() / (FiLong::from(k - r).fact() * FiLong::from(r).fact())));
+        // println!("k: {:?}", k_loop(r, FiLong::from(k)));
+        // println!("pow: {:?}", FiLong::ten().pow(FiLong::ten() / (FiLong::from(r) + FiLong::one_half())) / (r + g + FiLong::one_half()).pow(r + FiLong::one_half()));
+        // println!("-1: {:?}", FiLong::neg_one().pow_int(r));
+        switch.sign ^= true;
     }
-    println!("base: {:?}, sum: {:?}", &base, &sum);
-    println!("{:?}, k: {:?}", &base * &sum, k);
+    // println!("base: {:?}, sum: {:?}", &base, &sum);
+    // println!("{:?}, k: {:?}", &base * &sum, k);
     base * sum
 }
 
@@ -696,6 +702,10 @@ fn epsilon(k: usize) -> FiLong {
         0 => FiLong::one(),
         _ => FiLong::two(),
     }
+}
+
+fn combinations(n: usize, k: usize) -> FiLong {
+    FiLong::from(n).fact() / (FiLong::from(n - k).fact() * FiLong::from(k).fact())
 }
 
 fn k_loop(k: usize, subject: FiLong) -> FiLong {
@@ -717,9 +727,10 @@ fn lanczos(z: FiLong) -> FiLong { // as the pow function itself lacks accuracy, 
         FiLong::from("1.3293403881791370204736256125059")
     } else {
         const G: usize = 10;
+        let temp = FiLong::from("25066282746.31000502415765284811");
         let sqrt_2pi =  FiLong{sign: false, value: vec![10855154504875879234, 13]};
         let sum = &z + G + FiLong::one_half();
-        sqrt_2pi * (&sum).pow(&z + FiLong::one_half()) * (-sum).exp() * sum_coef(z, G)
+        temp * (&sum).pow(&z + FiLong::one_half()) * (-sum + FiLong::decimals().ln()).exp() * sum_coef(z, G) / FiLong::ten().pow_int(50)
     }
     
 }
