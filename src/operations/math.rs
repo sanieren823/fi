@@ -668,44 +668,15 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
     }
 }
 
-fn sum_coef(z: FiLong, g: usize) -> FiLong { // TODO: the coefficients should obviously be hardcoded values; during the process of fixing this it will remain unusable (due to speed)
+fn sum_coef(z: FiLong) -> FiLong {
     let mut res = FiLong::new();
     let mut switch = FiLong::one();
-    for k in 0..9 {
-        res += &coef(k, g) * &switch * k_loop(k, -(&z)) / k_loop(k, &z + 1); // try 10x/100x
+    let coef_twelve = [FiLong{sign: false, value: vec![5655420753803098240, 12550719351629465632, 889808]}, FiLong{sign: true, value: vec![5759209242382629472, 15508038588553078148, 1434810]}, FiLong{sign: false, value: vec![1719681165827774528, 5454905171872129182, 748810]}, FiLong{sign: true, value: vec![5939328030905055520, 9058466794327978989, 249676]}, FiLong{sign: false, value: vec![11530377041770882496, 12150207231186060905, 51954]}, FiLong{sign: true, value: vec![15358575742817413248, 1336561032396605874, 6503]}, FiLong{sign: false, value: vec![797747411212404448, 1899484714887658214, 463]}, FiLong{sign: true, value: vec![8877185043148587566, 4380987846065090874, 17]}, FiLong{sign: false, value: vec![16315208703988852500, 5407548214217688165]}, FiLong{sign: true, value: vec![13721643952721114792, 33349620271578982]}, FiLong{sign: false, value: vec![14392119779952995784, 47307858499180]}, FiLong{sign: true, value: vec![7678450685963492512, 4861947081]}, FiLong{sign: true, value: vec![9843454345403411574, 1198]}, FiLong{sign: true, value: vec![8226791211201053945, 1]}, FiLong{sign: false, value: vec![10479273227777144207, 10]}, FiLong{sign: true, value: vec![8332778112712234143]}, FiLong{sign: true, value: vec![862254331002304897]}, FiLong{sign: false, value: vec![252294143677683587]}, FiLong{sign: true, value: vec![41095506565101812]}, FiLong{sign: false, value: vec![5381427574453909]}];
+    for k in 0..16 {
+        res += &coef_twelve[k] * &switch * k_loop(k, -(&z)) / k_loop(k, &z + 1);
         switch.sign ^= true;
     }
     res
-}
-
-fn coef(k: usize, g: usize) -> FiLong {
-    let temp = FiLong::from("25066282746.31000502415765284811");
-    let base = FiLong::from(g + FiLong::decimals().ln()).exp() * epsilon(k) * FiLong::neg_one().pow_int(k) / temp; // new formula e^g+x {x = ln(10^20)} * epsilon * -1^k * 2pi.sqrt(precision 30)  
-    let mut sum = FiLong::new();
-    let mut switch = FiLong::one();
-    for r in 0..=k {
-        // new formula: switch * combination * k_loop * (e * 10^(10 / r+0.5) / (r + g + 0.5))^r+0.5
-        sum += &switch * combinations(k, r) * k_loop(r, FiLong::from(k)) * (FiLong::e() * FiLong::ten().pow(FiLong::ten() / (FiLong::from(r) + FiLong::one_half())) / (r + g + FiLong::one_half())).pow(r + FiLong::one_half()); // / (FiLong::hundred()).pow(r + FiLong::one_half());
-        // println!("fact: {:?}", (FiLong::from(k).fact() / (FiLong::from(k - r).fact() * FiLong::from(r).fact())));
-        // println!("k: {:?}", k_loop(r, FiLong::from(k)));
-        // println!("pow: {:?}", FiLong::ten().pow(FiLong::ten() / (FiLong::from(r) + FiLong::one_half())) / (r + g + FiLong::one_half()).pow(r + FiLong::one_half()));
-        // println!("-1: {:?}", FiLong::neg_one().pow_int(r));
-        switch.sign ^= true;
-    }
-    // println!("base: {:?}, sum: {:?}", &base, &sum);
-    // println!("{:?}, k: {:?}", &base * &sum, k);
-    base * sum
-}
-
-fn epsilon(k: usize) -> FiLong {
-    match k {
-        0 => FiLong::one(),
-        _ => FiLong::two(),
-    }
-}
-
-fn combinations(n: usize, k: usize) -> FiLong {
-    FiLong::from(n).fact() / (FiLong::from(n - k).fact() * FiLong::from(k).fact())
 }
 
 fn k_loop(k: usize, subject: FiLong) -> FiLong {
@@ -722,15 +693,14 @@ fn k_loop(k: usize, subject: FiLong) -> FiLong {
 }
 
 
-fn lanczos(z: FiLong) -> FiLong { // as the pow function itself lacks accuracy, i, for my part, cannot realistically determine what function is the root of causing these precision "errors"
-    if z == FiLong::from("1.5") { // remove (or think about it)
+fn lanczos(z: FiLong) -> FiLong { // the approximation is not accurate to 20 decimal digits as not all parts of the calculation have reached an accuracy of that equal to the coefficients accuracy
+    if z == FiLong::from("1.5") { // common value
         FiLong::from("1.3293403881791370204736256125059")
     } else {
-        const G: usize = 10;
-        let temp = FiLong::from("25066282746.31000502415765284811");
+        const G: usize = 12; // coefficients are calculated for g = 12
         let sqrt_2pi =  FiLong{sign: false, value: vec![10855154504875879234, 13]};
         let sum = &z + G + FiLong::one_half();
-        temp * (&sum).pow(&z + FiLong::one_half()) * (-sum + FiLong::decimals().ln()).exp() * sum_coef(z, G) / FiLong::ten().pow_int(50)
+        sqrt_2pi * (&sum).pow(&z + FiLong::one_half() + FiLong::trillion().log(&sum)) * (-sum + FiLong::trillion().ln()).exp() * sum_coef(z) / FiLong::ten().pow_int(44)
     }
     
 }
